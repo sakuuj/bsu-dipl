@@ -1,0 +1,11 @@
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://discovery-server:8761/eureka
+
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres-product-service:5432/product-service
+
+server:
+  port: 9000

@@ -1,0 +1,94 @@
+services:
+  api-gateway:
+    depends_on:
+      - discovery-server
+    build:
+      context: .
+      dockerfile: ./api-gateway/docker-files/Dockerfile-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    env_file:
+      - .env
+    ports:
+      - 127.0.0.1:8080:8080
+    networks:
+      - localnet
+
+  discovery-server:
+    depends_on:
+      - tempo
+      - grafana
+    build:
+      context: .
+      dockerfile: ./discovery-server/docker-files/Dockerfile-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    env_file:
+      - .env
+#    ports:
+#      - 127.0.0.1:8761:8761
+    networks:
+      - localnet
+
+  product-service:
+    depends_on:
+      - discovery-server
+      - postgres-product-service
+    build:
+      context: .
+      dockerfile: ./product-service/docker-files/Dockerfile-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    env_file:
+      - .env
+    ports:
+      - "9000:9000"
+#    command: -p 9000
+    networks:
+      - localnet
+
+  postgres-product-service:
+    container_name: postgres-course-work
+    build:
+      context: .
+      dockerfile: ./product-service/docker-files/Dockerfile-db
+    #    ports:
+    #      - 127.0.0.1:5432:5432
+    volumes:
+      - ./postgres-product:/var/lib/postgresql/data
+    networks:
+      - localnet
+
+  tempo:
+    image: grafana/tempo:2.2.2
+    command: [ "-config.file=/etc/tempo.yaml" ]
+    volumes:
+      - ./docker/tempo/tempo.yml:/etc/tempo.yaml:ro
+      - ./docker/tempo/tempo-data:/tmp/tempo
+#    ports:
+    #      - "3110:3100"  # Tempo
+#      - "9411:9411" # zipkin
+    networks:
+      - localnet
+
+  grafana:
+    image: grafana/grafana:10.1.0
+    volumes:
+      - ./docker/grafana:/etc/grafana/provisioning/datasources:ro
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+    ports:
+      - "3000:3000"
+    networks:
+      - localnet
+
+  loki:
+    image: grafana/loki:main
+    command: [ "-config.file=/etc/loki/local-config.yaml" ]
+    networks:
+      - localnet
+
+networks:
+  localnet:
