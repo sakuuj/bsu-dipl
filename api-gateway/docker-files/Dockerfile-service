@@ -1,5 +1,0 @@
-FROM eclipse-temurin:17-jdk
-ENV appName=api-gateway
-CMD java -jar ${appName}-${PROJECT_VERSION}.jar
-WORKDIR /app
-COPY ./$appName/build/libs/ ./

@@ -1,0 +1,8 @@
+bsu:
+  discovery-server:
+    uri: http://discovery-server:8761
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: ${bsu.discovery-server.uri}/eureka

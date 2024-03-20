@@ -1,6 +1,5 @@
 rootProject.name = 'fpmi_course_work'
-include 'api-gateway'
-include 'discovery-server'
-include 'product-service'
-include 'cfg-first-k-service'
+include 'microservices:api-gateway'
+include 'microservices:discovery-server'
+include 'microservices:cfg-first-k-service'
 
