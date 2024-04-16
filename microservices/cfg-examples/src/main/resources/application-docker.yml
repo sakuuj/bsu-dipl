@@ -1,0 +1,11 @@
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://discovery-server:8761/eureka
+
+management:
+  zipkin:
+    tracing:
+      endpoint: http://tempo:9411/api/v2/spans
+
+spring.datasource.url: jdbc:postgresql://cfg-examples-db:5432/cfg_repository

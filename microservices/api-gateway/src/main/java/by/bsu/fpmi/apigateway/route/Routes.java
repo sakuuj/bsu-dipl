@@ -1,11 +1,15 @@
 package by.bsu.fpmi.apigateway.route;
 
 import by.bsu.fpmi.apigateway.filter.EncodeRequestParametersFilter;
+import org.apache.http.Header;
+import org.apache.http.HttpHeaders;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.gateway.server.mvc.filter.AfterFilterFunctions;
 import org.springframework.cloud.gateway.server.mvc.filter.BeforeFilterFunctions;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.function.RouterFunction;
+import org.springframework.web.servlet.function.ServerRequest;
 import org.springframework.web.servlet.function.ServerResponse;
 
 import java.nio.charset.StandardCharsets;
@@ -18,20 +22,46 @@ import static org.springframework.cloud.gateway.server.mvc.predicate.GatewayRequ
 @Configuration
 public class Routes {
 
-    @Value("${bsu.cfg-first-k-service.name}")
-    private String cfgFirstKServiceName;
+    @Value("${bsu.cfg-processor.name}")
+    private String cfgProcessorServiceName;
+
+    @Value("${bsu.cfg-examples.name}")
+    private String cfgExamplesServiceName;
 
     @Value("${bsu.discovery-server.uri}")
     private String eurekaServerURI;
 
     @Bean
-    public RouterFunction<ServerResponse> newsSerivice() {
-        return route("news-serivice")
-                .route(path("/api/first-k/**"), http())
+    public RouterFunction<ServerResponse> cfgProcessorFirstK() {
+        return route("cfg-processor-first-k")
+                .route(path("/processor/first-k/**"), http())
                 .before(EncodeRequestParametersFilter.encodeRequestParameters(StandardCharsets.UTF_8))
-                .filter(lb(cfgFirstKServiceName))
+                .filter(lb(cfgProcessorServiceName))
                 .build();
     }
+
+
+    @Bean
+    public RouterFunction<ServerResponse> cfgExamples() {
+        return route("cfg-examples")
+                .route(path("/examples/**"), http())
+                .before(EncodeRequestParametersFilter.encodeRequestParameters(StandardCharsets.UTF_8))
+                .filter(lb(cfgExamplesServiceName))
+                .after(AfterFilterFunctions.addResponseHeader("Access-Control-Allow-Origin", "*"))
+                .build();
+    }
+
+
+
+    @Bean
+    public RouterFunction<ServerResponse> page() {
+        return route("cfg-processor-static")
+                .route(path("/*"), http())
+                .before(EncodeRequestParametersFilter.encodeRequestParameters(StandardCharsets.UTF_8))
+                .filter(lb(cfgProcessorServiceName))
+                .build();
+    }
+
 
 
     @Bean

@@ -1,6 +1,8 @@
 bsu:
-  cfg-first-k-service:
-    name: cfg-first-k-service
+  cfg-processor:
+    name: cfg-processor
+  cfg-examples:
+    name: cfg-examples
   discovery-server:
     uri: http://localhost:8761
 
