@@ -1,0 +1,31 @@
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka
+
+server.port: 7000
+server.forward-headers-strategy: NATIVE
+
+spring.application.name: cfg-examples
+
+spring.datasource.url: jdbc:postgresql://127.0.0.1:5432/cfg_repository
+spring.datasource.username: postgres
+spring.datasource.password: postgres
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info, metrics, prometheus
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http:
+          server:
+            requests: true
+  observations:
+    key-values:
+      application: ${spring.application.name}
+  tracing:
+    sampling:
+      probability: 1.0
