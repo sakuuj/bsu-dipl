@@ -38,6 +38,14 @@ public class EncodeRequestParametersFilter {
                             String paramValue = paramValues.get(i);
 
                             String encodedParamValue = new String(paramValue.getBytes(charset), charset);
+                            encodedParamValue = encodedParamValue.replace("=","%3d")
+                                    .replace("\"", "%22")
+                                    .replace(" ", "%20")
+                                    .replace("{", "%7b")
+                                    .replace("{", "%7b")
+                                    .replace("}", "%7d")
+                                    .replace("[", "%5b")
+                                    .replace("]", "%5d");
 
                             paramValues.set(i, encodedParamValue);
                         });

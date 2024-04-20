@@ -36,6 +36,9 @@ public class Routes {
         return route("cfg-processor-first-k")
                 .route(path("/processor/first-k/**"), http())
                 .before(EncodeRequestParametersFilter.encodeRequestParameters(StandardCharsets.UTF_8))
+                .after(AfterFilterFunctions.addResponseHeader("Access-Control-Allow-Origin", "http://127.0.0.1:63342"))
+                .after(AfterFilterFunctions.addResponseHeader("Access-Control-Allow-Methods", "GET, POST"))
+                .after(AfterFilterFunctions.addResponseHeader("Access-Control-Allow-Headers", "Content-Type, Origin"))
                 .filter(lb(cfgProcessorServiceName))
                 .build();
     }
@@ -48,6 +51,7 @@ public class Routes {
                 .before(EncodeRequestParametersFilter.encodeRequestParameters(StandardCharsets.UTF_8))
                 .filter(lb(cfgExamplesServiceName))
                 .after(AfterFilterFunctions.addResponseHeader("Access-Control-Allow-Origin", "*"))
+                .after(AfterFilterFunctions.addResponseHeader("Access-Control-Allow-Methods", "*"))
                 .build();
     }
 
@@ -62,7 +66,13 @@ public class Routes {
                 .build();
     }
 
-
+    @Bean
+    public RouterFunction<ServerResponse> grafana() {
+        return route("grafana")
+                .route(path("/grafana/**"), http("http://grafana:3000"))
+                .before(EncodeRequestParametersFilter.encodeRequestParameters(StandardCharsets.UTF_8))
+                .build();
+    }
 
     @Bean
     public RouterFunction<ServerResponse> eurekaServer() {

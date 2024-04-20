@@ -39,7 +39,7 @@ public class CFGRepositoryTests extends CommonPostgresContainerInitializer {
 
         // when
         long idOfInserted = cfgRepository.insert(cfgToInsert);
-        CFG cfgSelected = cfgRepository.selectById(idOfInserted);
+        CFG cfgSelected = cfgRepository.selectById(idOfInserted).get();
 
         JsonNode selectedContent = objectMapper.readTree(cfgSelected.getContent());
         JsonNode insertedContent = objectMapper.readTree(cfgToInsert.getContent());
@@ -120,10 +120,10 @@ public class CFGRepositoryTests extends CommonPostgresContainerInitializer {
         long id3 = cfgRepository.insert(cfgToInsert3);
         long id4 = cfgRepository.insert(cfgToInsert4);
 
-        CFG cfg1 = cfgRepository.selectById(id1);
-        CFG cfg2 = cfgRepository.selectById(id2);
-        CFG cfg3 = cfgRepository.selectById(id3);
-        CFG cfg4 = cfgRepository.selectById(id4);
+        CFG cfg1 = cfgRepository.selectById(id1).get();
+        CFG cfg2 = cfgRepository.selectById(id2).get();
+        CFG cfg3 = cfgRepository.selectById(id3).get();
+        CFG cfg4 = cfgRepository.selectById(id4).get();
 
         // when, then
         Page<CFG> cfgPage1 = cfgRepository.selectPage(new PageRequest(1, 2));
