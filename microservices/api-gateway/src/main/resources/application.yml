@@ -6,20 +6,26 @@ bsu:
   discovery-server:
     uri: http://localhost:8761
 
-eureka:
-  client:
+eureka.client:
     serviceUrl:
       defaultZone: ${bsu.discovery-server.uri}/eureka
 
-server:
-  port: 8080
+server.port: 8080
 
-spring:
-  application:
-    name: api-gateway
+#spring.security:
+#    oauth2:
+#      client:
+#        registration:
+#          google:
+#            clientId: 1037371134402-md6g19an8281pfl4b1rnlr4q6adpt46o.apps.googleusercontent.com
+#            clientSecret: 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
+#          github:
+#            clientId: Ov23liupaTu4556yzHab
+#            clientSecret: f5f1192133947750101045c7cb4cafb840bccb8f
 
-logging:
-  level:
+spring.application.name: api-gateway
+
+logging.level:
     root: INFO
     org:
       springframework:

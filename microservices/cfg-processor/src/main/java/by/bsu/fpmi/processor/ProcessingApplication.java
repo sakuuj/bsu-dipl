@@ -1,7 +1,8 @@
 package by.bsu.fpmi.processor;
 
-import by.bsu.fpmi.processor.model.Symbol;
-import by.bsu.fpmi.processor.model.Word;
+import com.github.loki4j.client.http.HttpHeader;
+import org.apache.http.HttpHeaders;
+import org.apache.http.client.methods.HttpHead;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
@@ -10,22 +11,15 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 @SpringBootApplication
 public class ProcessingApplication {
 
+    //    @Bean
+//    public UserDetailsService userDetailsService() {
+//        return new InMemoryUserDetailsManager(User.withUsername("df").password("2342341234").build());
+//    }
     public static void main(String[] args) {
 //        System.out.println(new Symbol("что-то").compareTo(new Symbol("a")));
         SpringApplication.run(ProcessingApplication.class, args);
-        Word word = new Word();
-        word.append(new Symbol("b"));
-        word.append(new Symbol("f"));
-        word.append(new Symbol("d"));
-        word.append(new Symbol("l"));
 
-        Word x = new Word();
-        System.out.println(x);
-        x.append(Symbol.EMPTY_SYMBOL);
-
-        System.out.println(x);
-        x.insertAt(0, word);
-
-        System.out.println(x);
     }
+
+
 }

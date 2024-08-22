@@ -36,9 +36,6 @@ public class Routes {
         return route("cfg-processor-first-k")
                 .route(path("/processor/first-k/**"), http())
                 .before(EncodeRequestParametersFilter.encodeRequestParameters(StandardCharsets.UTF_8))
-                .after(AfterFilterFunctions.addResponseHeader("Access-Control-Allow-Origin", "http://127.0.0.1:63342"))
-                .after(AfterFilterFunctions.addResponseHeader("Access-Control-Allow-Methods", "GET, POST"))
-                .after(AfterFilterFunctions.addResponseHeader("Access-Control-Allow-Headers", "Content-Type, Origin"))
                 .filter(lb(cfgProcessorServiceName))
                 .build();
     }
@@ -47,24 +44,22 @@ public class Routes {
     @Bean
     public RouterFunction<ServerResponse> cfgExamples() {
         return route("cfg-examples")
-                .route(path("/examples/**"), http())
+                .route(path("/examples/**", "/examples"), http())
                 .before(EncodeRequestParametersFilter.encodeRequestParameters(StandardCharsets.UTF_8))
                 .filter(lb(cfgExamplesServiceName))
-                .after(AfterFilterFunctions.addResponseHeader("Access-Control-Allow-Origin", "*"))
-                .after(AfterFilterFunctions.addResponseHeader("Access-Control-Allow-Methods", "*"))
                 .build();
     }
 
 
-
-    @Bean
-    public RouterFunction<ServerResponse> page() {
-        return route("cfg-processor-static")
-                .route(path("/*"), http())
-                .before(EncodeRequestParametersFilter.encodeRequestParameters(StandardCharsets.UTF_8))
-                .filter(lb(cfgProcessorServiceName))
-                .build();
-    }
+//
+//    @Bean
+//    public RouterFunction<ServerResponse> page() {
+//        return route("cfg-processor-static")
+//                .route(path("/*"), http())
+//                .before(EncodeRequestParametersFilter.encodeRequestParameters(StandardCharsets.UTF_8))
+//                .filter(lb(cfgProcessorServiceName))
+//                .build();
+//    }
 
     @Bean
     public RouterFunction<ServerResponse> grafana() {

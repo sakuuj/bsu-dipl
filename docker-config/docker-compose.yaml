@@ -1,9 +1,19 @@
 services:
+  auth-server-db:
+    restart: unless-stopped
+    build:
+      context: ../
+      dockerfile: Dockerfile-auth-server-db
+    ports:
+      - 5433:5432
+
   cfg-examples-db:
     restart: unless-stopped
     build:
       context: ../
       dockerfile: Dockerfile-cfg-examples-db
+    ports:
+      - "5432:5432"
     networks:
       - examples-net
 

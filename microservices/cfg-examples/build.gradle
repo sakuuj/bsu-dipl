@@ -18,6 +18,7 @@ dependencies {
     implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
 
+
     runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'

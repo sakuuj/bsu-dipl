@@ -3,4 +3,5 @@ include 'microservices:api-gateway'
 include 'microservices:discovery-server'
 include 'microservices:cfg-processor'
 include 'microservices:cfg-examples'
+include 'microservices:authentication-server'
 

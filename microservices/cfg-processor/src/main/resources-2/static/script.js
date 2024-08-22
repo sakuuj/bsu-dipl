@@ -403,21 +403,4 @@ chooseGrammarButton.onclick = function () {
 showCfgsCloseChooseGrammarButton.onclick = function () {
     showCfgsPopupContent.style.display = "none";
 };
-// <div class="cfg">
-//                     <p>#2</p>
-//                     <p class="ta-left">Терминалы:</p>
-//                     <p>{a, b, c}</p>
-//                     <p class="ta-left">Нетерминалы:</p>
-//                     <p>{A, B, C}</p>
-//                     <p class="ta-left">Определяющие уравнения:</p>
-//                     <pre>
-// {
-//     A = B | C | a;
-//     C = b;
-// //     B = c;
-// }</pre>
-//                     <p>
-//                         <chooseGrammarButton type="button">Выбрать</button>
-//                     </p>
-//                 </div>
 

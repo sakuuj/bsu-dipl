@@ -8,24 +8,30 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+
 @Slf4j
 @Validated
-@RestController
+@Controller
 @RequiredArgsConstructor
-@RequestMapping("/processor")
+@RequestMapping
 public class ProcessingController {
 
     private final ProcessorService processorService;
 
-    @PostMapping("/first-k/{k}")
+    @PostMapping(value = "processor/first-k/{k}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<CFGResponse> findFirstK(@RequestBody @Valid CFGRequest request,
                                                  @PathVariable("k") @Min(1) @Max(2) int k) {
 
-        return ResponseEntity.ok(processorService.normalizeAndCalculateFirstK(request, k));
+        return ResponseEntity.ok()
+                .body(processorService.normalizeAndCalculateFirstK(request, k));
     }
 
 }

@@ -1,0 +1,10 @@
+spring.datasource.url: jdbc:postgresql://127.0.0.1:5433/users
+spring.datasource.username: postgres
+spring.datasource.password: postgres
+
+spring.application.name: auth-server
+server.port: 4444
+
+eureka.client:
+  serviceUrl:
+    defaultZone: http://localhost:8761/eureka
