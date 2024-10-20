@@ -29,6 +29,6 @@ logging.level:
     root: INFO
     org:
       springframework:
-        cloud.gateway: TRACE
+        cloud.gateway: INFO
         cloud.gateway.route:
           RouteDefinitionLocator: INFO

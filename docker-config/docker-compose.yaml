@@ -1,11 +1,24 @@
 services:
+  auth-server:
+    restart: unless-stopped
+    build:
+      context: ../
+      dockerfile: Dockerfile-auth-server
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    networks:
+      auth-server-net:
+      localnet:
+
   auth-server-db:
     restart: unless-stopped
     build:
       context: ../
       dockerfile: Dockerfile-auth-server-db
+    networks:
+      auth-server-net:
     ports:
-      - 5433:5432
+      - 5435:5432
 
   cfg-examples-db:
     restart: unless-stopped
@@ -72,20 +85,20 @@ services:
       - JAVA_OPTS=-Dserver.port=22222
     networks:
       - localnet
-
-  cfg-processor-2:
-    hostname: processor-2-host
-    restart: unless-stopped
-    depends_on:
-      - discovery-server
-    build:
-      context: ../
-      dockerfile: Dockerfile-cfg-processor
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-      - JAVA_OPTS=-Dserver.port=22223
-    networks:
-      - localnet
+#
+#  cfg-processor-2:
+#    hostname: processor-2-host
+#    restart: unless-stopped
+#    depends_on:
+#      - discovery-server
+#    build:
+#      context: ../
+#      dockerfile: Dockerfile-cfg-processor
+#    environment:
+#      - SPRING_PROFILES_ACTIVE=docker
+#      - JAVA_OPTS=-Dserver.port=22223
+#    networks:
+#      - localnet
 
   tempo:
     restart: unless-stopped
@@ -111,7 +124,7 @@ services:
       - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
       - GF_AUTH_DISABLE_LOGIN_FORM=true
     ports:
-      - "3000:3000"
+      - "3200:3000"
     networks:
       - localnet
 
@@ -125,3 +138,4 @@ services:
 networks:
   localnet:
   examples-net:
+  auth-server-net:

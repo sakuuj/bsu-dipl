@@ -35,22 +35,22 @@ public class NormalizingService {
 
                 Set<Word> defEquation = symbolToDefEquation.getValue();
 
-                for (Word option : defEquation) {
+                boolean allOptionsAreGenerating = true;
 
-                    boolean hasGeneratingOption = true;
+                for (Word option : defEquation) {
 
                     for (Symbol symbol : option) {
 
                         if (!generatingNonTerminals.contains(symbol) && !terminals.contains(symbol)) {
-                            hasGeneratingOption = false;
+                            allOptionsAreGenerating = false;
                             break;
                         }
                     }
 
-                    if (hasGeneratingOption) {
-                        generatingNonTerminals.add(nonTerminal);
-                        break;
-                    }
+                }
+                
+                if (allOptionsAreGenerating) {
+                    generatingNonTerminals.add(nonTerminal);
                 }
             }
 
@@ -59,19 +59,7 @@ public class NormalizingService {
         Map<Symbol, Set<Word>> changedDefEquations = new HashMap<>();
         for (Symbol generatingNonTerminal : generatingNonTerminals) {
 
-            Set<Word> changedOptions = defEquationsMap.get(generatingNonTerminal)
-                    .stream()
-                    .filter(w -> {
-                        for (int i = 0; i < w.length(); i++) {
-                            Symbol s = w.getAt(i);
-                            if (!generatingNonTerminals.contains(s) && !terminals.contains(s)) {
-                                return false;
-                            }
-                        }
-
-                        return true;
-                    })
-                    .collect(Collectors.toCollection(HashSet::new));
+            Set<Word> changedOptions = defEquationsMap.get(generatingNonTerminal);
 
             changedDefEquations.put(generatingNonTerminal, changedOptions);
         }

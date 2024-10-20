@@ -26,7 +26,7 @@ public class RegistrationController {
         try {
             userResp = authenticationService.createUser(userReq);
         } catch (Exception exception) {
-            throw new RuntimeException("Пользователь с указанным именем уже существует");
+            throw new RuntimeException(exception.getMessage());
         }
         return ResponseEntity
                 .status(HttpStatus.CREATED)

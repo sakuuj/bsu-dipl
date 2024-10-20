@@ -30,15 +30,6 @@ public class AuthController {
     private final UserService userService;
     private final JwtService jwtService;
 
-
-    @Bean
-    CommandLineRunner commandLineRunner(UserRepository userRepository, Hasher hasher) {
-        return args -> {
-            User user = new User(0L, "admin", hasher.hash("1111"), "ADMIN");
-            userRepository.saveAndFlush(user);
-        };
-    }
-
     @PostMapping("/verify-jwt")
     public ResponseEntity<Void> verifyJwt(@RequestBody @NotBlank String jwt) {
         if (jwtService.verifyJwt(jwt)) {

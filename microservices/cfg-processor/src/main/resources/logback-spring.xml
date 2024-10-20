@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <include resource="org/springframework/boot/logging/logback/base.xml"/>
-    <logger name="org.springframework.security" level="TRACE"/>
+    <logger name="org.springframework.security" level="INFO"/>
     <springProfile name="docker">
         <springProperty scope="context" name="appName" source="spring.application.name"/>
 
@@ -43,7 +43,7 @@
             </encoder>
         </appender>
 
-        <root level="TRACE">
+        <root level="INFO">
             <appender-ref ref="LOKI"/>
             <appender-ref ref="FILE"/>
         </root>
