@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 
 @Component
 public class CFGParser {
+
     public OrderedCFG fromRequest(CFGRequest request) {
 
         Pattern whiteSpacePattern = Pattern.compile("\\s");
@@ -66,6 +67,7 @@ public class CFGParser {
                 })
                 .map(Symbol::new)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
+        terminals.add(Symbol.EMPTY_SYMBOL);
 
         if (!Collections.disjoint(terminals, nonTerminals)) {
             throw new MalformedGrammarException("множества терминалов и нетерминалов не должны пересекаться");

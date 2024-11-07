@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -24,31 +25,35 @@ import java.util.stream.Collectors;
 public class ProcessorService {
 
     private final CFGParser cfgParser;
+    private final NormalizationService normalizationService;
+    private final First1Service first1Service;
 
-    public CFGResponse normalizeAndCalculateFirstK(CFGRequest request, int k) {
+    public CFGResponse normalizeAndCalculateFirstK(CFGRequest request) {
         OrderedCFG orderedCfg = cfgParser.fromRequest(request);
 
-        CFG cfg = CFG.builder().definingEquations(orderedCfg.getDefiningEquations()).startSymbol(orderedCfg.getStartSymbol()).nonTerminals(new HashSet<>(orderedCfg.getNonTerminals())).terminals(new HashSet<>(orderedCfg.getTerminals())).build();
+        CFG cfg = CFG.builder()
+                .definingEquations(orderedCfg.getDefiningEquations())
+                .startSymbol(orderedCfg.getStartSymbol())
+                .nonTerminals(new HashSet<>(orderedCfg.getNonTerminals()))
+                .terminals(new HashSet<>(orderedCfg.getTerminals()))
+                .build();
 
-        NormalizingService.removeUselessNonTerminals(cfg);
+        normalizationService.removeUselessNonTerminals(cfg);
         if (cfg.getStartSymbol() == null) {
             throw new MalformedGrammarException("некорректно заданная грамматика, стартовый нетерминал - бесполезный символ " + "(непорождающий)");
         }
 
         orderedCfg.setDefiningEquations(cfg.getDefiningEquations());
-
-        orderedCfg.getNonTerminals().
-                retainAll(cfg.getNonTerminals());
+        orderedCfg.getNonTerminals().retainAll(cfg.getNonTerminals());
 
         log.info(cfg.toString());
 
-        Map<Symbol, Set<Word>> nonTerminalToSolution = FirstKService.firstK(cfg, k);
+        Map<Symbol, Set<Symbol>> nonTerminalToSolution = first1Service.first1(cfg);
         Map<String, Set<String>> nonTerminalToSolutionResponse = new HashMap<>();
 
         nonTerminalToSolution.forEach((key, value) ->
-
         {
-            Set<String> collected = value.stream().map(Word::toString).collect(Collectors.toSet());
+            Set<String> collected = value.stream().map(Symbol::toString).collect(Collectors.toCollection(LinkedHashSet::new));
             nonTerminalToSolutionResponse.put(key.toString(), collected);
         });
 
@@ -58,6 +63,5 @@ public class ProcessorService {
                 .startSymbol(orderedCfg.getStartSymbol().toString())
                 .nonTerminalToSolution(nonTerminalToSolutionResponse)
                 .build();
-
     }
 }

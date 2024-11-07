@@ -3,23 +3,54 @@ package by.bsu.fpmi.processor.service;
 import by.bsu.fpmi.processor.model.CFG;
 import by.bsu.fpmi.processor.model.Symbol;
 import by.bsu.fpmi.processor.model.Word;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-public class FirstKService {
+@Service
+public class First1ServiceImpl implements First1Service {
 
-    public static Map<Symbol, Set<Word>> firstK(CFG cfg, int k) {
+    @Override
+    public Set<Symbol> first1OverWord(Word word, Map<Symbol, Set<Symbol>> grammarFirst1, Set<Symbol> terminals) {
+
+        Set<Symbol> result = new HashSet<>();
+
+        for (Symbol symbol : word) {
+
+            if (terminals.contains(symbol)) {
+                result.add(symbol);
+                return result;
+            }
+
+            Set<Symbol> symbolFirst1 = grammarFirst1.get(symbol);
+
+            result.addAll(symbolFirst1);
+
+            if (symbolFirst1.contains(Symbol.EMPTY_SYMBOL)) {
+
+                result.remove(Symbol.EMPTY_SYMBOL);
+
+            } else {
+                return result;
+            }
+        }
+
+        return result;
+    }
+
+    @Override
+    public Map<Symbol, Set<Symbol>> first1(CFG cfg) {
 
         Set<Symbol> nonTerminals = cfg.getNonTerminals();
         Map<Symbol, Set<Word>> definingEquations = cfg.getDefiningEquations();
 
         Map<Symbol, Set<Word>> currResult = new HashMap<>();
         Map<Symbol, Set<Word>> prevResult = new HashMap<>();
+
         for (Symbol nt : nonTerminals) {
             currResult.put(nt, new HashSet<>());
             prevResult.put(nt, new HashSet<>());
@@ -27,7 +58,7 @@ public class FirstKService {
 
         while (true) {
             for (Symbol nt : nonTerminals) {
-                iterateOnNonTerminal(nt, nonTerminals, definingEquations, currResult, prevResult, k);
+                iterateOnNonTerminal(nt, nonTerminals, definingEquations.get(nt), currResult, prevResult);
             }
 
             if (prevResult.equals(currResult)) {
@@ -40,19 +71,24 @@ public class FirstKService {
 
         }
 
-        return currResult;
+        return new HashMap<>(currResult.entrySet().stream()
+                .flatMap(e -> {
+                    Set<Word> words = e.getValue();
+                    return words.stream()
+                            .map(w -> w.getAt(0))
+                            .map(s -> Map.entry(e.getKey(), s));
+                })
+                .collect(Collectors.groupingBy(Map.Entry::getKey, Collectors.mapping(Map.Entry::getValue, Collectors.toSet()))));
     }
 
-    private static void iterateOnNonTerminal(Symbol nonTerminal,
-                                             Set<Symbol> nonTerminals,
-                                             Map<Symbol, Set<Word>> defEquations,
-                                             Map<Symbol, Set<Word>> currResult,
-                                             Map<Symbol, Set<Word>> prevResult,
-                                             int k) {
-
-        Set<Word> defEquation = defEquations.get(nonTerminal);
-
-        for (Word option : defEquation) {
+    private static void iterateOnNonTerminal(
+            Symbol nonTerminal,
+            Set<Symbol> nonTerminals,
+            Set<Word> defEquationOptions,
+            Map<Symbol, Set<Word>> currResult,
+            Map<Symbol, Set<Word>> prevResult
+    ) {
+        for (Word option : defEquationOptions) {
 
             if (option.length() == 1 && option.getAt(0).equals(nonTerminal)) {
                 continue;
@@ -86,9 +122,9 @@ public class FirstKService {
                 if (!nonTerminals.contains(symbol)) {
                     derivation.append(symbol);
 
-                    if (derivation.length() == k || i == size - 1) {
-                       currResult.get(nonTerminal).add(derivation);
-                       break;
+                    if (derivation.length() == 1 || i == size - 1) {
+                        currResult.get(nonTerminal).add(derivation);
+                        break;
                     }
                     continue;
                 }
@@ -98,7 +134,6 @@ public class FirstKService {
                         nonTerminals,
                         currResult,
                         prevResult,
-                        k,
                         option,
                         derivation,
                         symbol,
@@ -111,15 +146,16 @@ public class FirstKService {
     }
 
 
-    private static void iterateOnNonTerminalRecursive(Symbol nonTerminal,
-                                                      Set<Symbol> nonTerminals,
-                                                      Map<Symbol, Set<Word>> currResult,
-                                                      Map<Symbol, Set<Word>> prevResult,
-                                                      int k,
-                                                      Word currentOption,
-                                                      Word currentlyDerived,
-                                                      Symbol currentNonTerminal,
-                                                      int currentSymbolIndex) {
+    private static void iterateOnNonTerminalRecursive(
+            Symbol nonTerminal,
+            Set<Symbol> nonTerminals,
+            Map<Symbol, Set<Word>> currResult,
+            Map<Symbol, Set<Word>> prevResult,
+            Word currentOption,
+            Word currentlyDerived,
+            Symbol currentNonTerminal,
+            int currentSymbolIndex
+    ) {
 
         Set<Word> availableDerivations = prevResult.get(currentNonTerminal);
 
@@ -129,8 +165,8 @@ public class FirstKService {
 
             derivation.concat(ad);
 
-            if (derivation.length() >= k) {
-                currResult.get(nonTerminal).add(derivation.subWord(0, k));
+            if (derivation.length() >= 1) {
+                currResult.get(nonTerminal).add(derivation.subWord(0, 1));
                 continue;
             }
 
@@ -147,7 +183,7 @@ public class FirstKService {
                 if (!nonTerminals.contains(symbol)) {
                     derivation.append(symbol);
 
-                    if (derivation.length() == k || i == size - 1) {
+                    if (derivation.length() == 1 || i == size - 1) {
                         currResult.get(nonTerminal).add(derivation);
                     }
                     continue;
@@ -157,7 +193,6 @@ public class FirstKService {
                         nonTerminals,
                         currResult,
                         prevResult,
-                        k,
                         currentOption,
                         derivation,
                         symbol,

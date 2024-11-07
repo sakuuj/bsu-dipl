@@ -10,7 +10,7 @@ import java.util.List;
 public class Word implements Iterable<Symbol> {
 
 
-    private ArrayList<Symbol> content;
+    private List<Symbol> content;
 
     public Word(Word word) {
         content = new ArrayList<>(word.content);
@@ -19,6 +19,10 @@ public class Word implements Iterable<Symbol> {
         content = new ArrayList<>(List.of(Symbol.EMPTY_SYMBOL));
     }
 
+    public boolean contains(Symbol s) {
+
+        return content.contains(s);
+    }
 
     @Override
     public Iterator<Symbol> iterator() {
@@ -58,27 +62,28 @@ public class Word implements Iterable<Symbol> {
         return sb.toString();
     }
 
-    public void append(Symbol symbol) {
+    public Word append(Symbol symbol) {
 
         if (symbol == null) {
             throw new IllegalArgumentException("null argument");
         }
 
         if (Symbol.EMPTY_SYMBOL.equals(symbol)) {
-            return;
+            return this;
         }
 
         if (content.size() > 1) {
             content.add(symbol);
-            return;
+            return this;
         }
 
         if (content.get(0).equals(Symbol.EMPTY_SYMBOL)) {
             content.set(0, symbol);
-            return;
+            return this;
         }
 
         content.add(symbol);
+        return this;
     }
 
     public void insertAt(int index, Word word) {

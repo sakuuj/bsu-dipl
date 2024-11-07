@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 
 @Slf4j
-@Validated
 @Controller
 @RequiredArgsConstructor
 @RequestMapping
@@ -26,12 +25,10 @@ public class ProcessingController {
 
     private final ProcessorService processorService;
 
-    @PostMapping(value = "processor/first-k/{k}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<CFGResponse> findFirstK(@RequestBody @Valid CFGRequest request,
-                                                 @PathVariable("k") @Min(1) @Max(2) int k) {
+    @PostMapping(value = "processor/first1", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<CFGResponse> findFirst1(@RequestBody @Valid CFGRequest request) {
 
         return ResponseEntity.ok()
-                .body(processorService.normalizeAndCalculateFirstK(request, k));
+                .body(processorService.normalizeAndCalculateFirstK(request));
     }
-
 }

@@ -3,17 +3,20 @@ package by.bsu.fpmi.processor.service;
 import by.bsu.fpmi.processor.model.CFG;
 import by.bsu.fpmi.processor.model.Symbol;
 import by.bsu.fpmi.processor.model.Word;
+import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-public class NormalizingService {
+@Service
+public class NormalizationServiceImpl implements NormalizationService {
 
-    public static void retainGeneratingNonTerminals(CFG cfg) {
+    @Override
+    public void retainGeneratingNonTerminals(CFG cfg) {
+
         Set<Symbol> terminals = cfg.getTerminals();
         Map<Symbol, Set<Word>> defEquationsMap = cfg.getDefiningEquations();
 
@@ -35,32 +38,44 @@ public class NormalizingService {
 
                 Set<Word> defEquation = symbolToDefEquation.getValue();
 
-                boolean allOptionsAreGenerating = true;
-
                 for (Word option : defEquation) {
+
+                    boolean allSymbolsAreGenerating = true;
 
                     for (Symbol symbol : option) {
 
                         if (!generatingNonTerminals.contains(symbol) && !terminals.contains(symbol)) {
-                            allOptionsAreGenerating = false;
+                            allSymbolsAreGenerating = false;
                             break;
                         }
                     }
 
-                }
-                
-                if (allOptionsAreGenerating) {
-                    generatingNonTerminals.add(nonTerminal);
+                    if (allSymbolsAreGenerating) {
+                        generatingNonTerminals.add(nonTerminal);
+                        break;
+                    }
                 }
             }
-
         }
 
         Map<Symbol, Set<Word>> changedDefEquations = new HashMap<>();
         for (Symbol generatingNonTerminal : generatingNonTerminals) {
 
-            Set<Word> changedOptions = defEquationsMap.get(generatingNonTerminal);
+            Set<Word> changedOptions = new HashSet<>(defEquationsMap.get(generatingNonTerminal));
+            Set<Word> optionsToRemove = new HashSet<>();
 
+            for (Word word : changedOptions) {
+
+                for (Symbol symbol : word) {
+
+                    if (!generatingNonTerminals.contains(symbol) && !terminals.contains(symbol)) {
+                        optionsToRemove.add(word);
+                        break;
+                    }
+                }
+            }
+
+            changedOptions.removeAll(optionsToRemove);
             changedDefEquations.put(generatingNonTerminal, changedOptions);
         }
 
@@ -68,7 +83,9 @@ public class NormalizingService {
         cfg.setDefiningEquations(changedDefEquations);
     }
 
-    public static void retainReachableNonTerminals(CFG cfg) {
+    @Override
+    public void retainReachableNonTerminals(CFG cfg) {
+
         Map<Symbol, Set<Word>> defEquationsMap = cfg.getDefiningEquations();
         Symbol startSymbol = cfg.getStartSymbol();
 
@@ -82,19 +99,15 @@ public class NormalizingService {
         Set<Symbol> nonTerminals = cfg.getNonTerminals();
 
         Set<Symbol> reachableNonTerminals = new HashSet<>(Set.of(startSymbol));
-        Set<Symbol> iteratedOverNonTerminals = new HashSet<>();
 
         int reachableCount = -1;
         while (reachableCount != reachableNonTerminals.size()) {
 
             reachableCount = reachableNonTerminals.size();
 
-            for (Symbol reachableNonTerminal : reachableNonTerminals) {
+            Set<Symbol> nonTerminalsToAddToReachable = new HashSet<>();
 
-                if (iteratedOverNonTerminals.contains(reachableNonTerminal)) {
-                    continue;
-                }
-                iteratedOverNonTerminals.add(reachableNonTerminal);
+            for (Symbol reachableNonTerminal : reachableNonTerminals) {
 
                 Set<Word> nonTerminalEquation = defEquationsMap.get(reachableNonTerminal);
 
@@ -104,42 +117,24 @@ public class NormalizingService {
 
                         if (nonTerminals.contains(symbol)) {
 
-                            reachableNonTerminals.add(symbol);
+                            nonTerminalsToAddToReachable.add(symbol);
                         }
                     }
                 }
             }
 
+            reachableNonTerminals.addAll(nonTerminalsToAddToReachable);
         }
 
-        Set<Symbol> terminals = cfg.getTerminals();
 
-        Map<Symbol, Set<Word>> changedDefEquations = new HashMap<>();
+        Map<Symbol, Set<Word>> reachableDefEquations = new HashMap<>();
         for (Symbol reachableNonTerminal : reachableNonTerminals) {
 
-            Set<Word> changedOptions = defEquationsMap.get(reachableNonTerminal)
-                    .stream()
-                    .filter(w -> {
-                        for (int i = 0; i < w.length(); i++) {
-                            Symbol s = w.getAt(i);
-                            if (!reachableNonTerminals.contains(s) && !terminals.contains(s)) {
-                                return false;
-                            }
-                        }
-
-                        return true;
-                    })
-                    .collect(Collectors.toCollection(HashSet::new));
-
-            changedDefEquations.put(reachableNonTerminal, changedOptions);
+            Set<Word> reachableOptions = new HashSet<>(defEquationsMap.get(reachableNonTerminal));
+            reachableDefEquations.put(reachableNonTerminal, reachableOptions);
         }
 
         cfg.setNonTerminals(reachableNonTerminals);
-        cfg.setDefiningEquations(changedDefEquations);
-    }
-
-    public static void removeUselessNonTerminals(CFG cfg) {
-        retainGeneratingNonTerminals(cfg);
-        retainReachableNonTerminals(cfg);
+        cfg.setDefiningEquations(reachableDefEquations);
     }
 }

@@ -15,13 +15,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
-public class ParserTests {
-
-    private final CFGParser cfgParser = new CFGParser();
+class ParserTests {
 
     @ParameterizedTest
     @MethodSource
-    public void shouldParseOneLengthSymbols(Set<String> nonTerminals,
+    void shouldParseOneLengthSymbols(Set<String> nonTerminals,
                                             Set<String> terminals,
                                             String stringToParse,
                                             String nonTerminal,
@@ -56,7 +54,7 @@ public class ParserTests {
 
     @ParameterizedTest
     @MethodSource
-    public void shouldParseMultipleLengthSymbols(Set<String> nonTerminals,
+    void shouldParseMultipleLengthSymbols(Set<String> nonTerminals,
                                             Set<String> terminals,
                                             String stringToParse,
                                             String nonTerminal,
@@ -68,7 +66,7 @@ public class ParserTests {
         assertThat(parsed.toString()).isEqualTo(stringToParse);
     }
 
-    public static Stream<Arguments> shouldParseMultipleLengthSymbols() {
+    static Stream<Arguments> shouldParseMultipleLengthSymbols() {
         return Stream.of(
                 arguments(Set.of("A", "BA", "BCD", "D"),
                         Set.of("qxe", "www", "e"),
@@ -91,7 +89,7 @@ public class ParserTests {
 
     @ParameterizedTest
     @MethodSource
-    public void shouldThrowExceptionOnMalformedInput(Set<String> nonTerminals,
+    void shouldThrowExceptionOnMalformedInput(Set<String> nonTerminals,
                                             Set<String> terminals,
                                             String stringToParse,
                                             String nonTerminal) {
