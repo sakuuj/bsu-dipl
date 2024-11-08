@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -79,7 +80,7 @@ public class NormalizationServiceImpl implements NormalizationService {
             changedDefEquations.put(generatingNonTerminal, changedOptions);
         }
 
-        cfg.setNonTerminals(generatingNonTerminals);
+        cfg.getNonTerminals().retainAll(generatingNonTerminals);
         cfg.setDefiningEquations(changedDefEquations);
     }
 
@@ -90,7 +91,7 @@ public class NormalizationServiceImpl implements NormalizationService {
         Symbol startSymbol = cfg.getStartSymbol();
 
         if (!defEquationsMap.containsKey(startSymbol)) {
-            cfg.setNonTerminals(Set.of());
+            cfg.setNonTerminals(new LinkedHashSet<>());
             cfg.setDefiningEquations(Map.of());
             cfg.setStartSymbol(null);
             return;
@@ -134,7 +135,7 @@ public class NormalizationServiceImpl implements NormalizationService {
             reachableDefEquations.put(reachableNonTerminal, reachableOptions);
         }
 
-        cfg.setNonTerminals(reachableNonTerminals);
+        cfg.getNonTerminals().retainAll(reachableNonTerminals);
         cfg.setDefiningEquations(reachableDefEquations);
     }
 }

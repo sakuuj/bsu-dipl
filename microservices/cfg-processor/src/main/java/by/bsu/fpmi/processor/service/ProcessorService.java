@@ -2,66 +2,82 @@ package by.bsu.fpmi.processor.service;
 
 import by.bsu.fpmi.processor.dto.CFGRequest;
 import by.bsu.fpmi.processor.dto.CFGResponse;
+import by.bsu.fpmi.processor.dto.First1Response;
+import by.bsu.fpmi.processor.dto.FollowResponse;
 import by.bsu.fpmi.processor.exception.MalformedGrammarException;
+import by.bsu.fpmi.processor.mapper.ToDtoCfgMapper;
+import by.bsu.fpmi.processor.mapper.ToEntityCfgMapper;
 import by.bsu.fpmi.processor.model.CFG;
-import by.bsu.fpmi.processor.model.OrderedCFG;
 import by.bsu.fpmi.processor.model.Symbol;
-import by.bsu.fpmi.processor.model.Word;
-import by.bsu.fpmi.processor.parser.CFGParser;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class ProcessorService {
 
-    private final CFGParser cfgParser;
+    private final ToDtoCfgMapper toDtoCfgMapper;
+    private final ToEntityCfgMapper toEntityCfgMapper;
+
     private final NormalizationService normalizationService;
     private final First1Service first1Service;
+    private final FollowService followService;
 
-    public CFGResponse normalizeAndCalculateFirstK(CFGRequest request) {
-        OrderedCFG orderedCfg = cfgParser.fromRequest(request);
+    public First1Response normalizeAndCalculateFirst1(CFGRequest request) {
 
-        CFG cfg = CFG.builder()
-                .definingEquations(orderedCfg.getDefiningEquations())
-                .startSymbol(orderedCfg.getStartSymbol())
-                .nonTerminals(new HashSet<>(orderedCfg.getNonTerminals()))
-                .terminals(new HashSet<>(orderedCfg.getTerminals()))
-                .build();
+        CFG cfg = toEntityCfgMapper.toEntity(request);
 
         normalizationService.removeUselessNonTerminals(cfg);
+
         if (cfg.getStartSymbol() == null) {
             throw new MalformedGrammarException("некорректно заданная грамматика, стартовый нетерминал - бесполезный символ " + "(непорождающий)");
         }
 
-        orderedCfg.setDefiningEquations(cfg.getDefiningEquations());
-        orderedCfg.getNonTerminals().retainAll(cfg.getNonTerminals());
+        log.info(cfg.toString());
+
+        Map<Symbol, Set<Symbol>> first1Map = first1Service.first1(cfg);
+
+        return toDtoCfgMapper.toFirst1Response(cfg, first1Map);
+    }
+
+    public FollowResponse normalizeAndCalculateFollow(CFGRequest request) {
+
+        CFG cfg = toEntityCfgMapper.toEntity(request);
+
+        normalizationService.removeUselessNonTerminals(cfg);
+
+        if (cfg.getStartSymbol() == null) {
+            throw new MalformedGrammarException("некорректно заданная грамматика, стартовый нетерминал - бесполезный символ " + "(непорождающий)");
+        }
 
         log.info(cfg.toString());
 
-        Map<Symbol, Set<Symbol>> nonTerminalToSolution = first1Service.first1(cfg);
-        Map<String, Set<String>> nonTerminalToSolutionResponse = new HashMap<>();
+        Map<Symbol, Set<Symbol>> first1Map = first1Service.first1(cfg);
+        Map<Symbol, Set<Symbol>> followMap = followService.follow(cfg, first1Map);
 
-        nonTerminalToSolution.forEach((key, value) ->
-        {
-            Set<String> collected = value.stream().map(Symbol::toString).collect(Collectors.toCollection(LinkedHashSet::new));
-            nonTerminalToSolutionResponse.put(key.toString(), collected);
-        });
+        return toDtoCfgMapper.toFollowResponse(cfg, first1Map, followMap);
+    }
 
-        return CFGResponse.builder()
-                .nonTerminals(orderedCfg.getNonTerminals().stream().map(Symbol::toString).toList())
-                .terminals(orderedCfg.getTerminals().stream().map(Symbol::toString).toList())
-                .startSymbol(orderedCfg.getStartSymbol().toString())
-                .nonTerminalToSolution(nonTerminalToSolutionResponse)
-                .build();
+    public CFGResponse retainGeneratingNonTerminals(CFGRequest request) {
+
+        CFG cfg = toEntityCfgMapper.toEntity(request);
+
+        normalizationService.retainGeneratingNonTerminals(cfg);
+
+        return toDtoCfgMapper.toCFGResponse(cfg);
+    }
+
+    public CFGResponse retainReachableNonTerminals(CFGRequest request) {
+
+        CFG cfg = toEntityCfgMapper.toEntity(request);
+
+        normalizationService.retainReachableNonTerminals(cfg);
+
+        return toDtoCfgMapper.toCFGResponse(cfg);
     }
 }

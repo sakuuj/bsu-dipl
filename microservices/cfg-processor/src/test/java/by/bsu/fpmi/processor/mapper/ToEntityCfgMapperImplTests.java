@@ -1,13 +1,14 @@
-package by.bsu.fpmi.processor.parser;
+package by.bsu.fpmi.processor.mapper;
 
 import by.bsu.fpmi.processor.exception.MalformedGrammarException;
 import by.bsu.fpmi.processor.model.Word;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.util.ReflectionUtils;
 
+import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -15,17 +16,30 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
-class ParserTests {
+class ToEntityCfgMapperImplTests {
+
+    private final ToEntityCfgMapperImpl cfgParser = new ToEntityCfgMapperImpl();
+
+    private final Method[] declaredMethods = ReflectionUtils.getDeclaredMethods(ToEntityCfgMapperImpl.class);
+    private final Method parseStringOfTerminalsAndNonTerminals = Arrays.stream(declaredMethods)
+            .filter(m -> m.getName().equals("parseStringOfTerminalsAndNonTerminals"))
+            .findFirst()
+            .orElseThrow(IllegalStateException::new);
 
     @ParameterizedTest
     @MethodSource
     void shouldParseOneLengthSymbols(Set<String> nonTerminals,
-                                            Set<String> terminals,
-                                            String stringToParse,
-                                            String nonTerminal,
-                                            int expectedLength) {
+                                     Set<String> terminals,
+                                     String stringToParse,
+                                     String nonTerminal,
+                                     int expectedLength) {
 
-        Word parsed = CFGParser.parseStringOfTerminalsAndNonTerminals(terminals, nonTerminals, nonTerminal, stringToParse);
+
+        Word parsed = (Word) ReflectionUtils.invokeMethod(
+                parseStringOfTerminalsAndNonTerminals,
+                cfgParser,
+                terminals, nonTerminals, nonTerminal, stringToParse
+        );
 
         assertThat(parsed.length()).isEqualTo(expectedLength);
         assertThat(parsed.toString()).isEqualTo(stringToParse);
@@ -55,12 +69,16 @@ class ParserTests {
     @ParameterizedTest
     @MethodSource
     void shouldParseMultipleLengthSymbols(Set<String> nonTerminals,
-                                            Set<String> terminals,
-                                            String stringToParse,
-                                            String nonTerminal,
-                                            int expectedLength) {
+                                          Set<String> terminals,
+                                          String stringToParse,
+                                          String nonTerminal,
+                                          int expectedLength) {
 
-        Word parsed = CFGParser.parseStringOfTerminalsAndNonTerminals(terminals, nonTerminals, nonTerminal, stringToParse);
+        Word parsed = (Word) ReflectionUtils.invokeMethod(
+                parseStringOfTerminalsAndNonTerminals,
+                cfgParser,
+                terminals, nonTerminals, nonTerminal, stringToParse
+        );
 
         assertThat(parsed.length()).isEqualTo(expectedLength);
         assertThat(parsed.toString()).isEqualTo(stringToParse);
@@ -90,11 +108,15 @@ class ParserTests {
     @ParameterizedTest
     @MethodSource
     void shouldThrowExceptionOnMalformedInput(Set<String> nonTerminals,
-                                            Set<String> terminals,
-                                            String stringToParse,
-                                            String nonTerminal) {
+                                              Set<String> terminals,
+                                              String stringToParse,
+                                              String nonTerminal) {
 
-        assertThatThrownBy(() -> CFGParser.parseStringOfTerminalsAndNonTerminals(terminals, nonTerminals, nonTerminal, stringToParse))
+        assertThatThrownBy(() -> ReflectionUtils.invokeMethod(
+                parseStringOfTerminalsAndNonTerminals,
+                cfgParser,
+                terminals, nonTerminals, nonTerminal, stringToParse
+        ))
                 .isInstanceOf(MalformedGrammarException.class);
 
     }

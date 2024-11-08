@@ -4,11 +4,10 @@ package by.bsu.fpmi.processor.service;
 import by.bsu.fpmi.processor.model.CFG;
 import by.bsu.fpmi.processor.model.Symbol;
 import by.bsu.fpmi.processor.model.Word;
-import by.bsu.fpmi.processor.parser.CFGParser;
-import com.sun.jdi.ObjectReference;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -37,8 +36,8 @@ class First1ServiceImplTests {
         // E = _, z
 
         CFG cfg = CFG.builder()
-                .terminals(Set.of(z, x, c))
-                .nonTerminals(Set.of(Q, W, E))
+                .terminals(new LinkedHashSet<>(Set.of(z, x, c)))
+                .nonTerminals(new LinkedHashSet<>(Set.of(Q, W, E)))
                 .definingEquations(Map.of(
                         Q, Set.of(new Word().append(W).append(x), new Word().append(E)),
                         W, Set.of(new Word().append(W), new Word().append(x).append(z)),

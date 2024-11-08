@@ -3,6 +3,7 @@ package by.bsu.fpmi.processor.service;
 import by.bsu.fpmi.processor.model.CFG;
 import by.bsu.fpmi.processor.model.Symbol;
 import by.bsu.fpmi.processor.model.Word;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -11,6 +12,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class First1ServiceImpl implements First1Service {
 
@@ -60,6 +62,9 @@ public class First1ServiceImpl implements First1Service {
             for (Symbol nt : nonTerminals) {
                 iterateOnNonTerminal(nt, nonTerminals, definingEquations.get(nt), currResult, prevResult);
             }
+
+            log.debug("PREV {}", prevResult);
+            log.debug("CURRENT: {}", currResult);
 
             if (prevResult.equals(currResult)) {
                 break;
@@ -114,35 +119,39 @@ public class First1ServiceImpl implements First1Service {
 
             Word derivation = new Word();
 
+            log.debug("OPTION {}", option);
             int size = option.size();
             for (int i = 0; i < size; i++) {
 
                 Symbol symbol = option.getAt(i);
 
-                if (!nonTerminals.contains(symbol)) {
-                    derivation.append(symbol);
+                if (nonTerminals.contains(symbol)) {
 
-                    if (derivation.length() == 1 || i == size - 1) {
-                        currResult.get(nonTerminal).add(derivation);
-                        break;
-                    }
-                    continue;
+                    iterateOnNonTerminalRecursive(
+                            nonTerminal,
+                            nonTerminals,
+                            currResult,
+                            prevResult,
+                            option,
+                            derivation,
+                            symbol,
+                            i
+                    );
+                    break;
                 }
 
-                iterateOnNonTerminalRecursive(
-                        nonTerminal,
-                        nonTerminals,
-                        currResult,
-                        prevResult,
-                        option,
-                        derivation,
-                        symbol,
-                        i
-                );
+                derivation.append(symbol);
 
+                if (derivation.length() == 1 || i == size - 1) {
+
+                    log.debug("{} NON IT {}", nonTerminal, derivation);
+
+                    currResult.get(nonTerminal).add(derivation);
+                    break;
+                }
             }
-        }
 
+        }
     }
 
 
@@ -165,6 +174,8 @@ public class First1ServiceImpl implements First1Service {
 
             derivation.concat(ad);
 
+            log.debug("{} {}", nonTerminal, derivation);
+
             if (derivation.length() >= 1) {
                 currResult.get(nonTerminal).add(derivation.subWord(0, 1));
                 continue;
@@ -180,24 +191,25 @@ public class First1ServiceImpl implements First1Service {
 
                 Symbol symbol = currentOption.getAt(i);
 
-                if (!nonTerminals.contains(symbol)) {
-                    derivation.append(symbol);
-
-                    if (derivation.length() == 1 || i == size - 1) {
-                        currResult.get(nonTerminal).add(derivation);
-                    }
-                    continue;
+                if (nonTerminals.contains(symbol)) {
+                    iterateOnNonTerminalRecursive(nonTerminal,
+                            nonTerminals,
+                            currResult,
+                            prevResult,
+                            currentOption,
+                            derivation,
+                            symbol,
+                            i);
+                    break;
                 }
 
-                iterateOnNonTerminalRecursive(nonTerminal,
-                        nonTerminals,
-                        currResult,
-                        prevResult,
-                        currentOption,
-                        derivation,
-                        symbol,
-                        i);
+                derivation.append(symbol);
 
+                if (derivation.length() == 1 || i == size - 1) {
+                    log.debug("{} IT {}", currentOption, derivation);
+                    currResult.get(nonTerminal).add(derivation);
+                    break;
+                }
             }
         }
     }

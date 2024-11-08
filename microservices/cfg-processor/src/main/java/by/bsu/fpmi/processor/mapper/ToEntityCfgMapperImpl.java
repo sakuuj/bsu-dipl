@@ -1,13 +1,12 @@
-package by.bsu.fpmi.processor.parser;
+package by.bsu.fpmi.processor.mapper;
 
 import by.bsu.fpmi.processor.dto.CFGRequest;
 import by.bsu.fpmi.processor.exception.MalformedGrammarException;
-import by.bsu.fpmi.processor.model.OrderedCFG;
+import by.bsu.fpmi.processor.model.CFG;
 import by.bsu.fpmi.processor.model.Symbol;
 import by.bsu.fpmi.processor.model.Word;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -16,19 +15,43 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Component
-public class CFGParser {
+public class ToEntityCfgMapperImpl implements ToEntityCfgMapper {
 
-    public OrderedCFG fromRequest(CFGRequest request) {
+    @Override
+    public CFG toEntity(CFGRequest request) {
 
         Pattern whiteSpacePattern = Pattern.compile("\\s");
 
-        LinkedHashSet<Symbol> nonTerminals = request.getNonTerminals().stream()
+        LinkedHashSet<Symbol> nonTerminals = mapNonTerminals(request.nonTerminals(), whiteSpacePattern);
+
+        Symbol startSymbol = mapStartSymbol(request.startSymbol(), nonTerminals);
+
+        LinkedHashSet<Symbol> terminals = mapTerminals(request.terminals(), whiteSpacePattern);
+
+        if (!Collections.disjoint(terminals, nonTerminals)) {
+            throw new MalformedGrammarException("множества терминалов и нетерминалов не должны пересекаться");
+        }
+
+        Map<Symbol, Set<Word>> definingEquations = mapDefiningEquations(request.definingEquations(), nonTerminals, terminals);
+
+        return CFG.builder()
+                .terminals(terminals)
+                .nonTerminals(nonTerminals)
+                .definingEquations(definingEquations)
+                .startSymbol(startSymbol)
+                .build();
+    }
+
+    private static LinkedHashSet<Symbol> mapNonTerminals(List<String> nonTerminals, Pattern whiteSpacePattern) {
+
+        return nonTerminals.stream()
                 .map(String::strip)
                 .peek(str -> {
                     if (str.isEmpty()) {
@@ -44,14 +67,11 @@ public class CFGParser {
                 })
                 .map(Symbol::new)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
+    }
 
-        Symbol startSymbol = new Symbol(request.getStartSymbol().strip());
+    private static LinkedHashSet<Symbol> mapTerminals(List<String> terminals, Pattern whiteSpacePattern) {
 
-        if (!nonTerminals.contains(startSymbol)) {
-            throw new MalformedGrammarException("стартовый нетерминал должен быть включен вo множество нетерминалов");
-        }
-
-        LinkedHashSet<Symbol> terminals = request.getTerminals().stream()
+        LinkedHashSet<Symbol> mappedTerminals = terminals.stream()
                 .map(String::strip)
                 .peek(str -> {
                     if (str.isEmpty()) {
@@ -67,32 +87,27 @@ public class CFGParser {
                 })
                 .map(Symbol::new)
                 .collect(Collectors.toCollection(LinkedHashSet::new));
-        terminals.add(Symbol.EMPTY_SYMBOL);
 
-        if (!Collections.disjoint(terminals, nonTerminals)) {
-            throw new MalformedGrammarException("множества терминалов и нетерминалов не должны пересекаться");
-        }
+        mappedTerminals.add(Symbol.EMPTY_SYMBOL);
 
-        Map<Symbol, Set<Word>> nonTerminalsToTransformationOptions = getNonTerminalsToTransformationOptions(
-               nonTerminals.stream().map(Object::toString).collect(Collectors.toSet()),
-               terminals.stream().map(Object::toString).collect(Collectors.toSet()),
-               request.getDefiningEquations()
-        );
-
-        return OrderedCFG.builder()
-                .terminals(terminals)
-                .nonTerminals(nonTerminals)
-                .definingEquations(nonTerminalsToTransformationOptions)
-                .startSymbol(new Symbol(request.getStartSymbol().strip()))
-                .build();
+        return mappedTerminals;
     }
 
-    private static Map<Symbol, Set<Word>> getNonTerminalsToTransformationOptions(Set<String> reqNonTerminals,
-                                                                                 Set<String> reqTerminals,
-                                                                                 List<String> reqDefiningEquations) {
+    private static Symbol mapStartSymbol(String s, LinkedHashSet<Symbol> nonTerminals) {
 
-        Map<Symbol, Set<Word>> nonTerminalsToTransformationOptions = new HashMap<>();
-        reqNonTerminals.forEach(nt -> nonTerminalsToTransformationOptions.put(new Symbol(nt), new HashSet<>()));
+        Symbol startSymbol = new Symbol(s.strip());
+
+        if (!nonTerminals.contains(startSymbol)) {
+            throw new MalformedGrammarException("стартовый нетерминал должен быть включен вo множество нетерминалов");
+        }
+
+        return startSymbol;
+    }
+
+    private static Map<Symbol, Set<Word>> mapDefiningEquations(List<String> reqDefiningEquations, Set<Symbol> reqNonTerminals, Set<Symbol> reqTerminals) {
+
+        Map<Symbol, Set<Word>> definingEquations = new HashMap<>();
+        reqNonTerminals.forEach(nt -> definingEquations.put(nt, new HashSet<>()));
 
         reqDefiningEquations.forEach(equation -> {
             String[] equationSplitByEquals = equation.split("=");
@@ -103,7 +118,10 @@ public class CFGParser {
             }
             String nonTerminal = equationSplitByEquals[0].strip();
 
-            if (!reqNonTerminals.contains(nonTerminal)) {
+            boolean nonTerminalNotFound = reqNonTerminals.stream()
+                    .noneMatch(reqNt -> reqNt.toString().equals(nonTerminal));
+
+            if (nonTerminalNotFound) {
                 throw new MalformedGrammarException("символ " + nonTerminal + " не содержится в исходном списке нетерминалов," +
                         " для него не может быть задано определяющее уравнение");
             }
@@ -118,16 +136,26 @@ public class CFGParser {
                             s)
                     ).collect(Collectors.toCollection(HashSet::new));
 
-            nonTerminalsToTransformationOptions.get(new Symbol(nonTerminal)).addAll(transformationOptions);
+            definingEquations.get(new Symbol(nonTerminal)).addAll(transformationOptions);
         });
 
-        return nonTerminalsToTransformationOptions;
+        return definingEquations;
     }
 
-    public static Word parseStringOfTerminalsAndNonTerminals(Set<String> terminals,
-                                                             Set<String> nonTerminals,
-                                                             String nonTerminalHavingStringAsDerivationOption,
-                                                             String stringToParse) {
+    private static Word parseStringOfTerminalsAndNonTerminals(
+            Set<Symbol> symbolTerminals,
+            Set<Symbol> symbolNonTerminals,
+            String nonTerminalHavingStringAsDerivationOption,
+            String stringToParse
+    ) {
+        Set<String> terminals = symbolTerminals.stream()
+                .map(Objects::toString)
+                .collect(Collectors.toSet());
+
+        Set<String> nonTerminals = symbolNonTerminals.stream()
+                .map(Object::toString)
+                .collect(Collectors.toSet());
+
         Word word = new Word();
 
         int length = stringToParse.length();

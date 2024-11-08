@@ -34,7 +34,7 @@ public class Routes {
     @Bean
     public RouterFunction<ServerResponse> cfgProcessorFirstK() {
         return route("cfg-processor-first-k")
-                .route(path("/processor/first-k/**"), http())
+                .route(path("/processor/**"), http())
                 .before(EncodeRequestParametersFilter.encodeRequestParameters(StandardCharsets.UTF_8))
                 .filter(lb(cfgProcessorServiceName))
                 .build();

@@ -6,6 +6,7 @@ import by.bsu.fpmi.processor.model.Word;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -26,8 +27,8 @@ class FollowServiceImplTests {
 
 
         CFG cfg = CFG.builder()
-                .terminals(Set.of(a, b, Symbol.EMPTY_SYMBOL))
-                .nonTerminals(Set.of(A, S, P))
+                .terminals(new LinkedHashSet<>(Set.of(a, b, Symbol.EMPTY_SYMBOL)))
+                .nonTerminals(new LinkedHashSet<>(Set.of(A, S, P)))
                 .startSymbol(A)
                 .definingEquations(Map.of(
                         A, Set.of(new Word().append(S)),
