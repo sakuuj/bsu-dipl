@@ -2,6 +2,9 @@ services:
   mongo-0:
     image: bitnami/mongodb:7.0.15
     restart: unless-stopped
+    healthcheck:
+      test: mongosh --eval 'use coursework' --eval 'db.runCommand("ping").ok' --quiet
+      start_period: 15s
     environment:
       MONGODB_ADVERTISED_HOSTNAME: mongo-0
       MONGODB_ROOT_PASSWORD: mongo123
@@ -9,8 +12,6 @@ services:
       MONGODB_REPLICA_SET_KEY: replicasetkey123
       MONGODB_EXTRA_FLAGS: --oplogSize=256
       MONGODB_DATABASE: coursework
-    ports:
-      - "127.0.0.1:27017:27017"
     volumes:
       - 'mongodb_master_data:/bitnami'
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
@@ -32,10 +33,28 @@ services:
       MONGODB_REPLICA_SET_KEY: replicasetkey123
       MONGODB_EXTRA_FLAGS: --oplogSize=256
       MONGODB_DATABASE: coursework
-    ports:
-      - "127.0.0.1:27018-27019:27017"
     networks:
       - net
+
+  cfg-examples:
+    build:
+      dockerfile: Dockerfile-cfg-examples
+    restart: unless-stopped
+    depends_on:
+      mongo-0:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:7000:7000"
+    networks:
+      - net
+
+  cfg-processor:
+    build:
+      dockerfile: Dockerfile-cfg-processor
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:7001:8081"
+
 networks:
   net:
 

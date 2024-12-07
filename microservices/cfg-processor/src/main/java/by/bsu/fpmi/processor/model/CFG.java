@@ -8,6 +8,7 @@ import java.util.Set;
 
 @Data
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
 public class CFG {
     private Map<Symbol, Set<Word>> definingEquations;

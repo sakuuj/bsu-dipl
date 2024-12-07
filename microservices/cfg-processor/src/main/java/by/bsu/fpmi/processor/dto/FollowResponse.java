@@ -8,10 +8,7 @@ import java.util.Set;
 
 @Builder
 public record FollowResponse(
-        List<String> nonTerminals,
-        List<String> terminals,
-        List<String> definingEquations,
-        String startSymbol,
+        CFGResponse cfgResponse,
         Map<String, Set<String>> first1Map,
         Map<String, Set<String>> followMap
 ) {
