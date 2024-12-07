@@ -1,0 +1,25 @@
+plugins {
+    id 'java-platform'
+}
+
+group = 'by.clevertec.sakuuj.carshowroom'
+version = 'unspecified'
+
+repositories {
+    mavenCentral()
+}
+
+javaPlatform {
+    allowDependencies()
+}
+
+dependencies {
+    api platform('org.junit:junit-bom:5.10.0')
+    api platform('org.springframework.boot:spring-boot-dependencies:3.4.0')
+
+    api 'org.projectlombok:lombok:1.18.36'
+    def mapStructVersion = '1.6.3'
+    api "org.mapstruct:mapstruct:${mapStructVersion}"
+    api "org.mapstruct:mapstruct-processor:${mapStructVersion}"
+}
+

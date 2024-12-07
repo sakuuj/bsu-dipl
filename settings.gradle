@@ -1,7 +1,8 @@
 rootProject.name = 'fpmi_course_work'
-include 'microservices:api-gateway'
-include 'microservices:discovery-server'
-include 'microservices:cfg-processor'
+//include 'microservices:api-gateway'
+//include 'microservices:discovery-server'
+//include 'microservices:cfg-processor'
 include 'microservices:cfg-examples'
-include 'microservices:authentication-server'
+//include 'microservices:authentication-server'
+include 'bom'
 

@@ -2,12 +2,13 @@ package by.bsu.fpmi.cfg.service;
 
 import by.bsu.fpmi.cfg.dto.CFGRequest;
 import by.bsu.fpmi.cfg.dto.CFGResponse;
-import by.bsu.fpmi.cfg.dto.Page;
-import by.bsu.fpmi.cfg.dto.PageRequest;
+import by.bsu.fpmi.cfg.dto.RequestedPage;
 import by.bsu.fpmi.cfg.entity.CFG;
 import by.bsu.fpmi.cfg.mapper.CFGMapper;
 import by.bsu.fpmi.cfg.repository.CFGRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -21,23 +22,32 @@ public class ExamplesServiceImpl implements ExamplesService {
 
 
     @Override
-    public Optional<CFGResponse> getExampleById(long id) {
+    public Optional<CFGResponse> getExampleById(String id) {
 
-        return cfgRepository.selectById(id)
-                .map(cfgMapper::toResponse);
+        return cfgRepository.findById(id).map(cfgMapper::toResponse);
     }
 
     @Override
-    public long insertExample(CFGRequest exampleRequest) {
+    public String insertExample(CFGRequest exampleRequest) {
 
-        CFG cfg = cfgMapper.fromRequest(exampleRequest);
-        return cfgRepository.insert(cfg);
+        CFG cfg = cfgMapper.toEntity(exampleRequest);
+
+        return cfgRepository.insert(cfg).getId();
     }
 
     @Override
-    public Page<CFGResponse> getPage(PageRequest pageRequest) {
+    public RequestedPage<CFGResponse> getAll(Pageable pageRequest) {
 
-        Page<CFG> selected = cfgRepository.selectPage(pageRequest);
-        return selected.map(cfgMapper::toResponse);
+        Page<CFG> selectedPage = cfgRepository.findAll(pageRequest);
+
+        var requestedPage = RequestedPage.fromPage(selectedPage);
+
+        return requestedPage.map(cfgMapper::toResponse);
+    }
+
+    @Override
+    public void deleteById(String id) {
+
+        cfgRepository.deleteById(id);
     }
 }

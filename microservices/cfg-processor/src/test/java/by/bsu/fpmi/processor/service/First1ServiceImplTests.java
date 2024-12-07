@@ -17,7 +17,6 @@ class First1ServiceImplTests {
 
     @Test
     void shouldFindFirst1Correctly() {
-
         // given
         Symbol z = new Symbol("z");
         Symbol x = new Symbol("x");

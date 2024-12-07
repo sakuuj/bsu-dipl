@@ -1,5 +1,8 @@
-FROM openjdk:17-jdk-alpine
+FROM eclipse-temurin:21-jre-alpine
 
-ARG JAR_FILE=microservices/cfg-examples/build/libs/cfg-examples-1.0.jar
+ARG APP_NAME=cfg-examples
+ARG JAR_FILE=microservices/${APP_NAME}/build/libs/${APP_NAME}-1.0.jar
+
 COPY ${JAR_FILE} app.jar
+
 ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} -jar /app.jar"]

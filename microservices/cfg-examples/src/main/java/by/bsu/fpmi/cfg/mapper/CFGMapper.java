@@ -3,35 +3,16 @@ package by.bsu.fpmi.cfg.mapper;
 import by.bsu.fpmi.cfg.dto.CFGRequest;
 import by.bsu.fpmi.cfg.dto.CFGResponse;
 import by.bsu.fpmi.cfg.entity.CFG;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingConstants;
 
-import java.time.LocalDateTime;
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
+public interface CFGMapper {
 
-@Component
-@RequiredArgsConstructor
-public class CFGMapper {
+    @Mapping(target = "id", ignore = true)
+    CFG toEntity(CFGRequest request);
 
-    private final ObjectMapper objectMapper;
+    CFGResponse toResponse(CFG cfg);
 
-    public CFG fromRequest(CFGRequest request) {
-        try {
-            String content = objectMapper.writeValueAsString(request);
-            return new CFG(-1L, content, LocalDateTime.MIN);
-
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public CFGResponse toResponse(CFG cfg) {
-        try {
-            return new CFGResponse(cfg.getId(), objectMapper.readTree(cfg.getContent()));
-
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
-    }
 }

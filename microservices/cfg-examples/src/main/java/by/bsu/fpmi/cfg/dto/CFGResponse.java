@@ -1,17 +1,15 @@
 package by.bsu.fpmi.cfg.dto;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Builder;
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-public class CFGResponse {
+import java.util.List;
 
-    private long id;
-
-    private JsonNode content;
-
+@Builder
+public record CFGResponse(
+        String id,
+        List<String> nonTerminals,
+        List<String> terminals,
+        List<String> definingEquations,
+        String startSymbol
+) {
 }
