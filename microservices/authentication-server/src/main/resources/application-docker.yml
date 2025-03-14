@@ -1,5 +1,0 @@
-spring.datasource.url: jdbc:postgresql://auth-server-db:5432/users
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: http://discovery-server:8761/eureka

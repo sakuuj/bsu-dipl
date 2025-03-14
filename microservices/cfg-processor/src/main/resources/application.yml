@@ -8,8 +8,6 @@ server.port: 8081
 
 spring.application.name: cfg-processor
 
-
-
 management:
   endpoints:
     web:

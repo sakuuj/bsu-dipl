@@ -1,6 +1,0 @@
-CREATE TABLE "user" (
-    id BIGINT PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    user_name VARCHAR(50) UNIQUE NOT NULL,
-    encoded_password CHAR(60) NOT NULL,
-    role VARCHAR(10) NOT NULL
-);

@@ -9,7 +9,6 @@ import java.util.List;
 @EqualsAndHashCode
 public class Word implements Iterable<Symbol> {
 
-
     private List<Symbol> content;
 
     public Word(Word word) {
@@ -17,11 +16,6 @@ public class Word implements Iterable<Symbol> {
     }
     public Word() {
         content = new ArrayList<>(List.of(Symbol.EMPTY_SYMBOL));
-    }
-
-    public boolean contains(Symbol s) {
-
-        return content.contains(s);
     }
 
     @Override
@@ -84,44 +78,6 @@ public class Word implements Iterable<Symbol> {
 
         content.add(symbol);
         return this;
-    }
-
-    public void insertAt(int index, Word word) {
-
-        if (word.length() == 0) {
-            return;
-        }
-
-        int oldLength = length();
-
-        if (index > oldLength || index < 0) {
-            throw new IllegalArgumentException("Index " + index + " is out of bounds, size is " + content.size());
-        }
-
-        int wordLength = word.length();
-
-        Symbol symbol = new Symbol("!");
-        for (int i = 0; i < wordLength; i++) {
-
-            append(symbol);
-        }
-
-
-        if (index == oldLength) {
-            for (int j = index; j < index + wordLength; j++) {
-                content.set(j, word.content.get(j - index));
-            }
-
-            return;
-        }
-
-        for (int i = 0, j = length() - 1; j >= index + wordLength; j--, i++) {
-            content.set(j, content.get(oldLength - 1 - i));
-        }
-
-        for (int i = 0; i < wordLength; i++) {
-            content.set(i + index, word.content.get(i));
-        }
     }
 
     public Word subWord(int startIncl, int endExcl) {

@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: cfg-processor-svc
+spec:
+  type: NodePort
+  ports:
+    - port: 8080
+      targetPort: 8081
+      protocol: TCP
+      nodePort: 30001
+  selector:
+    app: cfg-processor
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cfg-processor
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: cfg-processor
+  template:
+    metadata:
+      labels:
+        app: cfg-processor
+    spec:
+      containers:
+        - image: sakuuj/cfg-processor
+          name: cfg-processor
+          imagePullPolicy: Always
