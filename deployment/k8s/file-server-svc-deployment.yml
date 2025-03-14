@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: file-server-svc
+spec:
+  ports:
+    - port: 8080
+      targetPort: 8080
+      protocol: TCP
+  selector:
+    app: file-server
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: file-server
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: file-server
+  template:
+    metadata:
+      labels:
+        app: file-server
+    spec:
+      containers:
+        - image: sakuuj/file-server
+          name: file-server
+          imagePullPolicy: Always

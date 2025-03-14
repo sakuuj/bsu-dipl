@@ -1,0 +1,9 @@
+architecture: replicaset
+arbiter:
+  enabled: false
+replicaCount: 3
+auth:
+  rootPassword: root
+replicaSetName: replicaset
+livenessProbe:
+  initialDelaySeconds: 5

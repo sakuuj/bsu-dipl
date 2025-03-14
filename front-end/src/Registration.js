@@ -10,7 +10,7 @@ export default function RegistrationForm() {
   let [password, setPassword] = useState("");
 
   return (
-    <div className="w-4/5 flex justify-center items-center  bg-_dark-blue h-full">
+    <div className="w-full flex justify-center items-center  bg-_dark-blue h-full">
       <div className="flex-col  justify-center items-center p-5 bg-_dark-blue text-white m-2">
         <div className="text-center font-bold text-2xl border-b border-_grayer-white pb-2">РЕГИСТРАЦИЯ</div>
         <div className="">

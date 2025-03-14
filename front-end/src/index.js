@@ -6,18 +6,18 @@ import {
 } from "react-router-dom";
 import "./index.css";
 import App from "./App";
-import RegistrationForm from "./Registration";
 import ErrorPage from "./ErrorPage";
+import LoginForm from "./Login";
 
 const router = createBrowserRouter([
   {
     path: "/",
     element: <App />,
-    errorElement: <ErrorPage/>
+    errorElement: <ErrorPage />
   },
   {
-    path: "/register",
-    element: <RegistrationForm />
+    path: "/login",
+    element: <LoginForm />
   }
 ]);
 
