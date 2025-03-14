@@ -2,7 +2,7 @@ import React from "react";
 import { useState } from "react";
 import Cookies from "js-cookie";
 
-const JWT_COOKIE_NAME = "X-JWT-TOKEN";
+// const JWT_TOKEN_KEY = "jwtToken";
 
 const DEFAULT_PAGE_SIZE = 3;
 const FIRST_PAGE_NUMBER = 1;
@@ -43,10 +43,10 @@ function definingEquationsToString(definingEquations) {
 function GrammarOption({ option, onGrammarChoosed }) {
 
     let id = option.id;
-    let startSymbol = option.content.startSymbol;
-    let nonTerminals = nonTerminalsToString(option.content.nonTerminals, startSymbol);
-    let terminals = terminalsToString(option.content.terminals);
-    let definingEquations = definingEquationsToString(option.content.definingEquations);
+    let startSymbol = option.startSymbol;
+    let nonTerminals = nonTerminalsToString(option.nonTerminals, startSymbol);
+    let terminals = terminalsToString(option.terminals);
+    let definingEquations = definingEquationsToString(option.definingEquations);
 
     return (
         <div className="relative text-center mb-10 bg-white block order-0 p-3 mt-3">
@@ -223,10 +223,8 @@ function fetchGrammarsAndPublishResponse(onResponseReceived, grammarReq, setGram
     console.log(grammarReq);
     let xhr = new XMLHttpRequest();
 
-    xhr.open('GET', `http://localhost:8080/examples?page-number=${currentPageNumber}&page-size=${defaultPageSize}`);
+    xhr.open('GET', `http://localhost:80/examples?page=${currentPageNumber}&size=${defaultPageSize}`);
     xhr.responseType = 'json';
-    xhr.withCredentials = true;
-    xhr.setRequestHeader('Authorization', 'Bearer ' + Cookies.get(JWT_COOKIE_NAME));
 
     xhr.onload = function () {
         if (xhr.status !== 200) {
@@ -250,7 +248,14 @@ function fetchGrammarsAndPublishResponse(onResponseReceived, grammarReq, setGram
     };
 
     xhr.onerror = function () {
-        alert(`Error when trying to get grammars`);
+        // alert(`Error when trying to get grammars`);
+        const response = {
+            status: xhr.status
+        }
+
+        onResponseReceived(response);
+        setGrammarReq(null);
+        return;
     }
 
 
@@ -264,5 +269,4 @@ function fetchGrammarsAndPublishResponse(onResponseReceived, grammarReq, setGram
 
     xhr.send();
     setGrammarReq(xhr);
-}   
-    
+}

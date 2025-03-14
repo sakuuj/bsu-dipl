@@ -1,0 +1,8 @@
+FROM eclipse-temurin:21-jre-alpine
+
+ARG APP_NAME=cfg-examples
+ARG JAR_FILE=../microservices/${APP_NAME}/build/libs/${APP_NAME}-1.0.jar
+
+COPY ${JAR_FILE} app.jar
+
+ENTRYPOINT ["sh", "-c", "java ${JAVA_OPTS} -jar /app.jar"]

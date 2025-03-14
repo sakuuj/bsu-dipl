@@ -1,4 +1,4 @@
-#eureka.client.enabled: false
+eureka.client.enabled: false
 
 eureka:
   client:
@@ -10,9 +10,10 @@ server.forward-headers-strategy: NATIVE
 
 spring.application.name: cfg-examples
 
-spring.datasource.url: jdbc:postgresql://127.0.0.1:5432/cfg_repository
-spring.datasource.username: postgres
-spring.datasource.password: postgres
+spring.datasource.url: mongodb://my-release-mongodb-0.my-release-mongodb-headless.default.svc.cluster.local:27017,my-release-mongodb-1.my-release-mongodb-headless.default.svc.cluster.local:27017,my-release-mongodb-2.my-release-mongodb-headless.default.svc.cluster.local:27017/coursework?replicaSet=replicaset
+#spring.datasource.url: mongodb://mongo-0:27017/coursework?replicaSet=replicaset
+spring.datasource.username: root
+spring.datasource.password: root
 
 management:
   endpoints:

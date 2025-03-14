@@ -1,16 +1,19 @@
 package by.bsu.fpmi.cfg.repository;
 
-import by.bsu.fpmi.cfg.dto.Page;
-import by.bsu.fpmi.cfg.dto.PageRequest;
 import by.bsu.fpmi.cfg.entity.CFG;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.Repository;
 
 import java.util.Optional;
 
-public interface CFGRepository {
+public interface CFGRepository extends Repository<CFG, String> {
 
-    long insert(CFG cfg);
+    CFG insert(CFG cfg);
 
-    Optional<CFG> selectById(long id);
+    Optional<CFG> findById(String id);
 
-    Page<CFG> selectPage(PageRequest pageRequest);
+    void deleteById(String id);
+
+    Page<CFG> findAll(Pageable pageable);
 }

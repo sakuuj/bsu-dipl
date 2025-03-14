@@ -1,11 +1,16 @@
 package by.bsu.fpmi.cfg.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Builder;
+import org.springframework.data.domain.Pageable;
 
-@Data
-@AllArgsConstructor
-public class PageRequest {
-    private long pageNumber;
-    private long perPageCount;
+@Builder
+public record PageRequest(int pageNumber, int pageSize) {
+
+    public static PageRequest fromPageable(Pageable pageable) {
+
+        return PageRequest.builder()
+                .pageNumber(pageable.getPageNumber())
+                .pageSize(pageable.getPageSize())
+                .build();
+    }
 }

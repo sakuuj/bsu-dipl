@@ -1,22 +1,40 @@
 plugins {
-    id 'build-conventions'
+    id 'java'
+    id("org.springframework.boot") version "3.4.0"
+}
+
+group = "by.bsu.sakuuj"
+version = "1.0"
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(21)
+}
+
+repositories {
+    mavenCentral()
 }
 
 dependencies {
-    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+    annotationProcessor platform(project(':bom'))
+    annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor 'org.mapstruct:mapstruct-processor'
 
-    implementation "com.github.loki4j:loki-logback-appender:${loki4jVersion}"
+    implementation platform(project(':bom'))
+//    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.mapstruct:mapstruct'
     implementation 'org.springframework.boot:spring-boot-starter-actuator'
-    implementation 'io.micrometer:micrometer-tracing-bridge-brave'
-    implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
-    implementation 'org.mapstruct:mapstruct:1.5.5.Final'
-    annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+//    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+
+//    implementation "com.github.loki4j:loki-logback-appender:${loki4jVersion}"
+//    implementation 'io.micrometer:micrometer-tracing-bridge-brave'
+//    implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
 //    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
-    runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
+//    runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
 }

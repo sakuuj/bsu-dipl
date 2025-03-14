@@ -6,7 +6,6 @@ import by.bsu.fpmi.processor.dto.FollowResponse;
 import by.bsu.fpmi.processor.model.CFG;
 import by.bsu.fpmi.processor.model.Symbol;
 import by.bsu.fpmi.processor.model.Word;
-import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
@@ -22,9 +21,11 @@ import java.util.stream.Collectors;
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface ToDtoCfgMapper {
 
+    @Mapping(target = "cfgResponse", source = "cfg")
     @Mapping(target = "first1Map", source = "first1Map")
     First1Response toFirst1Response(CFG cfg, Map<Symbol, Set<Symbol>> first1Map);
 
+    @Mapping(target = "cfgResponse", source = "cfg")
     @Mapping(target = "first1Map", source = "first1Map")
     @Mapping(target = "followMap", source = "followMap")
     FollowResponse toFollowResponse(CFG cfg, Map<Symbol, Set<Symbol>> first1Map, Map<Symbol, Set<Symbol>> followMap);

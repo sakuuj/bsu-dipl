@@ -4,8 +4,9 @@ import Cookies from "js-cookie";
 
 import ChooseGrammarPopup from "./ChooseGrammarPopup";
 
-const JWT_COOKIE_NAME = "X-JWT-TOKEN";
-
+const JWT_TOKEN_KEY = "jwtToken";
+const PROCESSOR_HOST = "http://localhost:80"
+const EXAMPLES_HOST = "http://localhost:80"
 
 export default function ActionButtons({
     grammar,
@@ -35,16 +36,14 @@ export default function ActionButtons({
             <button
                 className="relative bg-_smoke p-2 w-4/5 hover:text-_grayer-white hover:bg-_dark-blue"
                 type="button"
-                id="findFirst_1"
-                onClick={() => fetchFirstKAndPublishResult(onResultAcquired, grammar, 1)}
-            >Вычислить FIRST_1</button>
+                onClick={() => findFirst1AndPublishResult(onResultAcquired, grammar)}
+            >FIRST_1</button>
             <p></p>
             <button
                 className="bg-_smoke p-2 w-4/5 hover:text-_grayer-white hover:bg-_dark-blue"
                 type="button"
-                id="findFirst_2"
-                onClick={() => fetchFirstKAndPublishResult(onResultAcquired, grammar, 2)}
-            >Вычислить FIRST_2</button>
+                onClick={() => findFollowAndPublishResult(onResultAcquired, grammar)}
+            >FOLLOW</button>
 
             {
                 role != "ADMIN" ? null :
@@ -62,13 +61,12 @@ export default function ActionButtons({
     );
 }
 
-function fetchFirstKAndPublishResult(onResultAcquired, grammarState, k) {
+function findFirst1AndPublishResult(onResultAcquired, grammarState) {
     let xhr = new XMLHttpRequest();
 
-    xhr.open('POST', `http://localhost:8080/processor/first-k/${k}`);
+    xhr.open('POST', `${PROCESSOR_HOST}/processor/first1`);
     xhr.responseType = 'json';
     xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.setRequestHeader('Authorization', 'Bearer ' + Cookies.get(JWT_COOKIE_NAME));
     xhr.onload = function () {
         if (xhr.status !== 200) {
             const errorResponse = xhr.response;
@@ -80,17 +78,63 @@ function fetchFirstKAndPublishResult(onResultAcquired, grammarState, k) {
             return;
         }
         const response = xhr.response;
-        console.log(response);
-        let ntStr = nonTerminalsToString(response.nonTerminals, response.startSymbol);
-        let tStr = terminalsToString(response.terminals);
-        let nttStr = nonTerminalsToSolution(response.nonTerminalToSolution);
+        const cfgResponse = response.cfgResponse;
+        const first1Map = response.first1Map;
 
-        let rez = "Нетерминалы: " + ntStr + "\n Терминалы: " + tStr + "\n Решение:" + nttStr;
+        console.log(response);
+        let ntStr = nonTerminalsToString(cfgResponse.nonTerminals, cfgResponse.startSymbol);
+        let tStr = terminalsToString(cfgResponse.terminals);
+        let nttStr = nonTerminalsToSolution(first1Map);
+
+        let rez = "Нетерминалы: " + ntStr + "\n Терминалы: " + tStr + "\n FIRST_1:" + nttStr;
 
         onResultAcquired(rez);
     };
     xhr.onerror = function () {
-        alert(`Error when trying to get grammars`);
+        onResultAcquired("ОШИБКА");
+        return;
+    }
+
+    let grammar = parseGrammar(grammarState);
+    console.log(JSON.stringify(grammar));
+    xhr.send(JSON.stringify(grammar));
+}
+
+function findFollowAndPublishResult(onResultAcquired, grammarState) {
+    let xhr = new XMLHttpRequest();
+
+    xhr.open('POST', `${PROCESSOR_HOST}/processor/follow`);
+    xhr.responseType = 'json';
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onload = function () {
+        if (xhr.status !== 200) {
+            const errorResponse = xhr.response;
+            if (errorResponse !== null) {
+                onResultAcquired("ОШИБКА:\n" + errorResponse.message);
+            } else {
+                onResultAcquired("ОШИБКА");
+            }
+            return;
+        }
+        const response = xhr.response;
+        const cfgResponse = response.cfgResponse;
+
+        console.log(response);
+        let ntStr = nonTerminalsToString(cfgResponse.nonTerminals, cfgResponse.startSymbol);
+        let tStr = terminalsToString(cfgResponse.terminals);
+        let followStr = nonTerminalsToSolution(response.followMap);
+        let first1Str = nonTerminalsToSolution(response.first1Map);
+
+        let rez = "Нетерминалы: " + ntStr 
+        + "\n Терминалы: " + tStr 
+        +"\n FIRST_1: " + first1Str
+        +"\n FOLLOW:" + followStr;
+
+        onResultAcquired(rez);
+    };
+    xhr.onerror = function () {
+        onResultAcquired("ОШИБКА");
+        return;
     }
 
     let grammar = parseGrammar(grammarState);
@@ -128,12 +172,12 @@ function parseGrammar(grammarState) {
 function insertGrammarAndPublishResult(onResultAcquired, grammarState) {
     let xhr = new XMLHttpRequest();
 
-    xhr.open('POST', `http://localhost:8080/examples`);
+    xhr.open('POST', `${EXAMPLES_HOST}/examples`);
     xhr.responseType = 'json';
     xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.setRequestHeader('Authorization', 'Bearer ' + Cookies.get(JWT_COOKIE_NAME));
+    xhr.setRequestHeader('Authorization', 'Bearer ' + localStorage.getItem(JWT_TOKEN_KEY));
     xhr.onload = function () {
-        if (xhr.status !== 201  ) {
+        if (xhr.status !== 201) {
             const errorResponse = xhr.response;
             if (errorResponse !== null) {
                 onResultAcquired("ОШИБКА:\n" + errorResponse.message);
@@ -147,7 +191,8 @@ function insertGrammarAndPublishResult(onResultAcquired, grammarState) {
         onResultAcquired("Грамматика добавлена");
     };
     xhr.onerror = function () {
-        alert(`Error when trying to get grammars`);
+
+        onResultAcquired("ОШИБКА");
     }
 
     let grammar = parseGrammar(grammarState);
@@ -186,9 +231,9 @@ function nonTerminalsToSolution(ntt) {
     let rez = '';
     for (const [key, value] of Object.entries(ntt)) {
         rez += "\n" + key + ": \n" + value
-        .map(item => String(item))
-        .reduce((accumulator, current) => accumulator + '\n\t' + current, "")
-        .slice(1)
+            .map(item => String(item))
+            .reduce((accumulator, current) => accumulator + '\n\t' + current, "")
+            .slice(1)
     }
     return rez;
 }
