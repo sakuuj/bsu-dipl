@@ -2,55 +2,78 @@ package main
 
 import (
 	"context"
-	"log"
+	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
+
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/gommon/log"
 )
 
 func main() {
 
+	fileDirectory, routes := getRoutingInfo()
+
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGTERM)
 	defer stop()
 
-	fileServer := newFileServer()
+	server := newStaticServer(routes, fileDirectory)
+	logger := server.Logger
 
-	go fileServer.ListenAndServe()
+	go func() {
+		if err := server.Start(":8080"); err != nil && err != http.ErrServerClosed {
+			logger.Fatal(err)
+		}
+	}()
 
 	<-ctx.Done()
 
-	shutdownGracefully(fileServer)
+	shutdownGracefully(server, logger)
 }
 
-func newFileServer() *http.Server {
+func newStaticServer(routes []string, fileDirectory string) *echo.Echo {
 
-	fileServer := &http.Server{
-		Addr: ":8080",
+	server := echo.New()
+	for _, r := range routes {
+		server.Static(r, fileDirectory)
 	}
-	fileServerHandler := http.FileServer(http.Dir("./static"))
-	http.Handle("/", fileServerHandler)
+	server.Logger.SetLevel(log.INFO)
 
-	return fileServer
+	server.Pre(middleware.AddTrailingSlash())
+
+	server.Use(middleware.Gzip())
+	server.Use(middleware.Logger())
+	server.Use(middleware.Recover())
+
+	return server
 }
 
-func shutdownGracefully(fileServer *http.Server) {
+func getRoutingInfo() (string, []string) {
+	args := os.Args
 
-	shutdownCtx, cancel := context.WithTimeout(context.Background(), time.Second*3)
+	if len(args) < 3 {
+		fmt.Println("You should specify file directory as first arg and then routes, for example: ./static / /login")
+		os.Exit(1)
+	}
+
+	fileDirectory := args[1]
+	routes := args[2:]
+	return fileDirectory, routes
+}
+
+func shutdownGracefully(server interface{ Shutdown(context.Context) error }, logger echo.Logger) {
+
+	shutdownCtx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	err := fileServer.Shutdown(shutdownCtx)
-	if err != nil {
-
-		if err == context.DeadlineExceeded {
-			log.Println(err)
-			os.Exit(0)
-		}
-
-		log.Fatalln(err)
+	if err := server.Shutdown(shutdownCtx); err != nil {
+		logger.Fatal(err)
 	}
 
-	log.Println("Teminated successfully")
+	logger.Info("Teminated successfully")
 	os.Exit(0)
 }

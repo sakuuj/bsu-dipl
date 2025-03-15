@@ -1,8 +1,13 @@
-FROM golang:1.24-alpine3.21
+FROM golang:1.24-alpine3.21 AS builder
 WORKDIR /app
-COPY ../../file-server/go.mod ./
+COPY ../../file-server/go.mod ../../file-server/go.sum ./
 RUN go mod download
 COPY ../../file-server ./
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64  go build -C ./cmd -o ../app
+
+FROM alpine:3.21
+WORKDIR /app
+COPY --from=builder /app/app ./app
 COPY ../../front-end/build ./static
-RUN CGO_ENABLED=0 GOOS=linux go build -C ./cmd -o ../app
-ENTRYPOINT ["/bin/sh", "-c", "./app"]
+RUN chmod 755 ./app
+ENTRYPOINT ["/bin/sh", "-c", "./app static / /login"]
