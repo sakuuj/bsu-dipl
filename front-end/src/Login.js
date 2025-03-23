@@ -2,7 +2,7 @@ import React from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
-
+const AUTH_SERVER_HOST = "http://localhost:80"
 
 export default function LoginForm() {
 
@@ -17,7 +17,7 @@ export default function LoginForm() {
         <div className="grow-0">
           <div className=" border border-_grayer-white flex justify-between  items-center mb-5 mt-10">
             <label className="flex-1 px-5 text-center hover:bg-white hover:text-_dark-blue" for="login">Логин</label>
-            <input  id="login" className="border  border-_dark-blue px-2 text-_dark-blue" type="text" value={userName} onChange={(e) => setUserName(e.target.value)}></input>
+            <input id="login" className="border  border-_dark-blue px-2 text-_dark-blue" type="text" value={userName} onChange={(e) => setUserName(e.target.value)}></input>
           </div>
           <div className="border  border-_grayer-white flex justify-between items-center mb-2">
             <label for="passwd" className="flex-1 text-center mx-auto hover:bg-white hover:text-_dark-blue">Пароль</label>
@@ -26,7 +26,7 @@ export default function LoginForm() {
         </div>
 
         {<div className="flex justify-end mb-5">
-          <Link to={`/`} onClick={() => {localStorage.removeItem("jwtToken")}} className="hover:text-_smoke">На главную</Link>
+          <Link to={`/`} onClick={() => { localStorage.removeItem("jwtToken") }} className="hover:text-_smoke">На главную</Link>
         </div>}
         {errorMsg !== "" ? (
           <>
@@ -36,11 +36,8 @@ export default function LoginForm() {
         <div className="flex justify-center items-center">
           <div onClick={() => {
             const xhr = new XMLHttpRequest();
-            xhr.open("POST", "http://localhost:8080/login");
-            let params = `password=${password}&userName=${userName}`;
-            console.log(params);
-            xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-
+            xhr.open("POST", `${AUTH_SERVER_HOST}/auth/login`);
+            xhr.setRequestHeader('Content-type', 'application/json');
             xhr.onerror = function () {
               setErrorMsg("Произошла ошибка при подключении к серверу, попробуйте войти позже")
             }
@@ -51,15 +48,20 @@ export default function LoginForm() {
                 setErrorMsg("Неправильное имя или пароль");
                 return;
               }
+              setErrorMsg("")
 
-              let jwtToken = response;
+              let jwtToken = JSON.parse(response).accessToken;
               console.log(jwtToken);
 
               localStorage.setItem("jwtToken", jwtToken);
+              window.location.href = "/";
             };
-            xhr.send(params);
-
-            localStorage.removeItem("jwtToken")
+            xhr.send(`
+              {
+                "username": "${userName}",
+                "password": "${password}"
+              }`
+            );
           }}
             className="text-center py-2 px-14 hover:bg-_dark-blue hover:text-_grayer-white border hover:border-_grayer-white bg-white text-_dark-blue hover:cursor-pointer "
           >

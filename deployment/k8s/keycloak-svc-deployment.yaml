@@ -1,30 +1,30 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: cfg-processor-svc
+  name: keycloak-svc
 spec:
   ports:
     - port: 8080
-      targetPort: 8081
+      targetPort: 8080
       protocol: TCP
   selector:
-    app: cfg-processor
+    app: keycloak
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: cfg-processor
+  name: keycloak
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
-      app: cfg-processor
+      app: keycloak
   template:
     metadata:
       labels:
-        app: cfg-processor
+        app: keycloak
     spec:
       containers:
-        - image: sakuuj/cfg-processor
-          name: cfg-processor
+        - image: sakuuj/keycloak
+          name: keycloak
           imagePullPolicy: Always

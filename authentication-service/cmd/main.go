@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"os/signal"
 	"sakuuj/dipl/authentication-server/internal/config"
@@ -25,7 +26,7 @@ func main() {
 	env := config.LoadEnvironment()
 
 	var loginService service.LoginService = &service.LoginServiceImpl{Logger: logger, OAuth2Config: env.OAuth2}
-	var loginHandler handler.LoginHanlder = &handler.LoginHanlderImpl{LoginService: loginService}
+	var loginHandler handler.LoginHandler = &handler.LoginHandlerImpl{LoginService: loginService}
 
 	server.POST("/login", loginHandler.Login)
 
@@ -34,7 +35,7 @@ func main() {
 			logger.Fatal(err)
 		}
 	}()
-
+		fmt.Println()
 	<-ctx.Done()
 
 	shutdownGracefully(server, logger, env.ServerGracefulShutdownTimeoutMs)

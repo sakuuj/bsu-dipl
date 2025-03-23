@@ -1,0 +1,15 @@
+FROM registry.access.redhat.com/ubi9 AS ubi-micro-build
+RUN mkdir -p /mnt/rootfs
+RUN dnf install --installroot /mnt/rootfs curl --releasever 9 --setopt install_weak_deps=false --nodocs -y && \
+    dnf --installroot /mnt/rootfs clean all && \
+    rpm --root /mnt/rootfs -e --nodeps setup
+
+FROM keycloak/keycloak:26.1.3
+COPY --from=ubi-micro-build /mnt/rootfs /
+RUN ["/bin/sh", "-c", "mkdir -p /opt/keycloak/data/import"]
+COPY ./deployment/docker/configs/keycloak-realm.json /opt/keycloak/data/import
+ENV KC_BOOTSTRAP_ADMIN_USERNAME="admin" \
+    KC_BOOTSTRAP_ADMIN_PASSWORD="admin" \
+    KC_HEALTH_ENABLED=true
+CMD ["start-dev", "--import-realm", "--verbose", "--log-level=info", \
+"--hostname-strict=false"]

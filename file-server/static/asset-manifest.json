@@ -1,0 +1,14 @@
+{
+  "files": {
+    "main.css": "/static/css/main.d6b604bf.css",
+    "main.js": "/static/js/main.04f4980f.js",
+    "static/media/logoBSU.jpg": "/static/media/logoBSU.be8e5d529a58027c852e.jpg",
+    "index.html": "/index.html",
+    "main.d6b604bf.css.map": "/static/css/main.d6b604bf.css.map",
+    "main.04f4980f.js.map": "/static/js/main.04f4980f.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.d6b604bf.css",
+    "static/js/main.04f4980f.js"
+  ]
+}

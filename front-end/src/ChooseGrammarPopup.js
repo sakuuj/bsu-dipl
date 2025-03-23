@@ -2,7 +2,8 @@ import React from "react";
 import { useState } from "react";
 import Cookies from "js-cookie";
 
-// const JWT_TOKEN_KEY = "jwtToken";
+const EXAMPLES_HOST = "http://localhost";
+const JWT_TOKEN_KEY = "jwtToken";
 
 const DEFAULT_PAGE_SIZE = 3;
 const FIRST_PAGE_NUMBER = 1;
@@ -47,8 +48,9 @@ function GrammarOption({ option, onGrammarChoosed }) {
     let nonTerminals = nonTerminalsToString(option.nonTerminals, startSymbol);
     let terminals = terminalsToString(option.terminals);
     let definingEquations = definingEquationsToString(option.definingEquations);
+    let [enabled, setEnabled] = useState(true);
 
-    return (
+    return enabled ? (
         <div className="relative text-center mb-10 bg-white block order-0 p-3 mt-3">
             <div className="border border-_smoke">
 
@@ -101,9 +103,18 @@ function GrammarOption({ option, onGrammarChoosed }) {
                         Выбрать
                     </button>
                 </p>
+                {localStorage.getItem(JWT_TOKEN_KEY) !== null ?
+                    (<p className=" p-2 hover:bg-_dark-blue hover:text-white hover:border-_smoke">
+                        <button type="button" onClick={() => {
+                            deleteGrammar(id, setEnabled)
+                        }} >
+                            Удалить
+                        </button>
+                    </p>) : null}
+
             </div>
         </div>
-    );
+    ) : null;
 }
 
 function GrammarOptions({ grammarOptions, onGrammarChoosed }) {
@@ -223,8 +234,13 @@ function fetchGrammarsAndPublishResponse(onResponseReceived, grammarReq, setGram
     console.log(grammarReq);
     let xhr = new XMLHttpRequest();
 
-    xhr.open('GET', `http://localhost:80/examples?page=${currentPageNumber}&size=${defaultPageSize}`);
+    xhr.open('GET', `${EXAMPLES_HOST}/examples?page=${currentPageNumber}&size=${defaultPageSize}`);
     xhr.responseType = 'json';
+    // xhr.withCredentials = true;
+    // console.log(localStorage.getItem(JWT_TOKEN_KEY))
+    // console.log("Bearer " + localStorage.getItem(JWT_TOKEN_KEY));
+    // xhr.setRequestHeader("Authorization", "Bearer " + localStorage.getItem(JWT_TOKEN_KEY));
+
 
     xhr.onload = function () {
         if (xhr.status !== 200) {
@@ -270,3 +286,23 @@ function fetchGrammarsAndPublishResponse(onResponseReceived, grammarReq, setGram
     xhr.send();
     setGrammarReq(xhr);
 }
+
+function deleteGrammar(id, setEnabled) {
+    let xhr = new XMLHttpRequest();
+
+    xhr.open('DELETE', `${EXAMPLES_HOST}/examples/${id}`);
+    xhr.responseType = 'json';
+    xhr.withCredentials = true;
+    xhr.setRequestHeader("Authorization", "Bearer " + localStorage.getItem(JWT_TOKEN_KEY));
+
+    xhr.onload = function () {
+        if (xhr.status !== 204) {
+            return;
+        }
+
+        setEnabled(false);
+    };
+
+    xhr.send();
+}
+

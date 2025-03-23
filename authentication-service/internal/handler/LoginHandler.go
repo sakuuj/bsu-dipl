@@ -4,6 +4,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type LoginHanlder interface {
+type LoginHandler interface {
 	Login(echo.Context) error
 }

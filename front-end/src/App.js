@@ -1,15 +1,13 @@
 import React from "react";
-import Cookies from "js-cookie";
-import { useState } from "react";
+
 import { jwtDecode } from 'jwt-decode';
 import "core-js/stable/atob";
-import { Navigate, redirect, useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 
 import Navbar from "./Navbar";
 import Main from "./Main";
 import LoginForm from "./Login";
 
-const JWT_COOKIE_NAME = "X-JWT-TOKEN";
 
 
 function App() {
@@ -45,8 +43,11 @@ function isExpired(token) {
   let decodedToken = jwtDecode(token);
   console.log(decodedToken)
   let dateNow = new Date();
+  console.log(dateNow)
 
-  if (decodedToken.exp < dateNow.getTime()) {
+  console.log(decodedToken.exp)
+  console.log(dateNow.getTime())
+  if (decodedToken.exp < dateNow.getTime() / 1000) {
     isExpired = true;
   }
   return isExpired;

@@ -8,11 +8,11 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type LoginHanlderImpl struct {
+type LoginHandlerImpl struct {
 	LoginService service.LoginService
 }
 
-func (loginHandler *LoginHanlderImpl) Login(c echo.Context) error {
+func (loginHandler *LoginHandlerImpl) Login(c echo.Context) error {
 
 	loginRequest := dto.LoginRequest{}
 	if err := c.Bind(&loginRequest); err != nil {
