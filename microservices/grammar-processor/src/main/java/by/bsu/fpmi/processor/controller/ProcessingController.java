@@ -1,9 +1,9 @@
 package by.bsu.fpmi.processor.controller;
 
-import by.bsu.fpmi.processor.dto.GrammarRequest;
-import by.bsu.fpmi.processor.dto.GrammarResponse;
 import by.bsu.fpmi.processor.dto.First1Response;
 import by.bsu.fpmi.processor.dto.FollowResponse;
+import by.bsu.fpmi.processor.dto.GrammarRequest;
+import by.bsu.fpmi.processor.dto.GrammarResponse;
 import by.bsu.fpmi.processor.dto.ParsingRequest;
 import by.bsu.fpmi.processor.dto.ParsingResponse;
 import by.bsu.fpmi.processor.service.ProcessorService;
@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
+//@CrossOrigin(origins = "http://localhost:3000", methods = {RequestMethod.POST})
 @RestController
 @RequiredArgsConstructor
 @RequestMapping(

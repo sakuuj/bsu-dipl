@@ -16,11 +16,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
-@Transactional
-@SpringBootTest
-@ActiveProfiles("test")
-public class CFGRepositoryTests extends CommonPostgresContainerInitializer {
+//
+//@Transactional
+//@SpringBootTest
+//@ActiveProfiles("test")
+//public class CFGRepositoryTests extends CommonPostgresContainerInitializer {
 //
 //    @Autowired
 //    private CFGRepository cfgRepository;
@@ -155,4 +155,4 @@ public class CFGRepositoryTests extends CommonPostgresContainerInitializer {
 //        assertThat(cfgPage3.isFirst()).isFalse();
 //        assertThat(cfgPage3.isLast()).isFalse();
 //    }
-}
+//}

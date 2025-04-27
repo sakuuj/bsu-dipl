@@ -15,6 +15,10 @@ public class LexicalAnalyzerService {
 
     public static List<Symbol> tokenizeText(String text, Set<Symbol> nonTerminals, Set<Symbol> terminals) {
 
+        if (text.isBlank()) {
+            return List.of(Symbol.EMPTY_SYMBOL);
+        }
+
         String[] splitText = text.strip().split("\\s+");
 
         ArrayList<Symbol> result = Arrays.stream(splitText)

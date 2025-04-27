@@ -3,7 +3,7 @@ import React from "react";
 export default function Result({ computedResult }) {
     return (
         <div className=" basis-20 grow base flex  flex-col justify-stretch">
-            <p className="mt-2 mb-1 text-2xl text-center">
+            <p className="mt-2 mb-1 text-xl text-center">
                 Результат
             </p>
 
