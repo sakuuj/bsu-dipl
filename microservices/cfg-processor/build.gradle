@@ -16,8 +16,17 @@ repositories {
 
 dependencies {
     annotationProcessor platform(project(':bom'))
-    annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor("org.projectlombok:lombok")
     annotationProcessor 'org.mapstruct:mapstruct-processor'
+
+    compileOnly platform(project(':bom'))
+    compileOnly("org.projectlombok:lombok")
+
+    testCompileOnly platform(project(':bom'))
+	testCompileOnly("org.projectlombok:lombok")
+
+    testAnnotationProcessor platform(project(':bom'))
+	testAnnotationProcessor("org.projectlombok:lombok")
 
     implementation platform(project(':bom'))
 //    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
@@ -37,4 +46,7 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
 //    runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
+}
+tasks.named('test') {
+    useJUnitPlatform()
 }

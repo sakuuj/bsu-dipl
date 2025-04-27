@@ -74,6 +74,6 @@ func shutdownGracefully(server interface{ Shutdown(context.Context) error }, log
 		logger.Fatal(err)
 	}
 
-	logger.Info("Teminated successfully")
+	logger.Info("Terminated successfully")
 	os.Exit(0)
 }

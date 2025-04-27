@@ -1,9 +1,9 @@
 package by.bsu.fpmi.processor.mapper;
 
-import by.bsu.fpmi.processor.dto.CFGResponse;
+import by.bsu.fpmi.processor.dto.GrammarResponse;
 import by.bsu.fpmi.processor.dto.First1Response;
 import by.bsu.fpmi.processor.dto.FollowResponse;
-import by.bsu.fpmi.processor.model.CFG;
+import by.bsu.fpmi.processor.model.Grammar;
 import by.bsu.fpmi.processor.model.Symbol;
 import by.bsu.fpmi.processor.model.Word;
 import org.mapstruct.Mapper;
@@ -19,18 +19,18 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
-public interface ToDtoCfgMapper {
+public interface ToDtoGrammarMapper {
 
-    @Mapping(target = "cfgResponse", source = "cfg")
+    @Mapping(target = "grammarResponse", source = "grammar")
     @Mapping(target = "first1Map", source = "first1Map")
-    First1Response toFirst1Response(CFG cfg, Map<Symbol, Set<Symbol>> first1Map);
+    First1Response toFirst1Response(Grammar grammar, Map<Symbol, Set<Symbol>> first1Map);
 
-    @Mapping(target = "cfgResponse", source = "cfg")
+    @Mapping(target = "grammarResponse", source = "grammar")
     @Mapping(target = "first1Map", source = "first1Map")
     @Mapping(target = "followMap", source = "followMap")
-    FollowResponse toFollowResponse(CFG cfg, Map<Symbol, Set<Symbol>> first1Map, Map<Symbol, Set<Symbol>> followMap);
+    FollowResponse toFollowResponse(Grammar grammar, Map<Symbol, Set<Symbol>> first1Map, Map<Symbol, Set<Symbol>> followMap);
 
-    CFGResponse toCFGResponse(CFG cfg);
+    GrammarResponse toGrammarResponse(Grammar grammar);
 
     default String mapToString(Symbol s) {
         return s.toString();

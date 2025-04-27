@@ -5,7 +5,7 @@ import lombok.Builder;
 import java.util.List;
 
 @Builder
-public record CFGResponse(
+public record GrammarResponse(
         List<String> nonTerminals,
         List<String> terminals,
         String startSymbol,

@@ -1,9 +1,11 @@
 package by.bsu.fpmi.processor.controller;
 
-import by.bsu.fpmi.processor.dto.CFGRequest;
-import by.bsu.fpmi.processor.dto.CFGResponse;
+import by.bsu.fpmi.processor.dto.GrammarRequest;
+import by.bsu.fpmi.processor.dto.GrammarResponse;
 import by.bsu.fpmi.processor.dto.First1Response;
 import by.bsu.fpmi.processor.dto.FollowResponse;
+import by.bsu.fpmi.processor.dto.ParsingRequest;
+import by.bsu.fpmi.processor.dto.ParsingResponse;
 import by.bsu.fpmi.processor.service.ProcessorService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,27 +29,33 @@ public class ProcessingController {
     private final ProcessorService processorService;
 
     @PostMapping("/first1")
-    public First1Response findFirst1(@RequestBody @Valid CFGRequest request) {
+    public First1Response findFirst1(@RequestBody @Valid GrammarRequest request) {
 
         return processorService.normalizeAndCalculateFirst1(request);
     }
 
     @PostMapping("/follow")
-    public FollowResponse findFollow(@RequestBody @Valid CFGRequest request) {
+    public FollowResponse findFollow(@RequestBody @Valid GrammarRequest request) {
 
         return processorService.normalizeAndCalculateFollow(request);
     }
 
     @PostMapping("/retain-generating-nt")
-    public CFGResponse retainGeneratingNonTerminals(@RequestBody @Valid CFGRequest request) {
+    public GrammarResponse retainGeneratingNonTerminals(@RequestBody @Valid GrammarRequest request) {
 
         return processorService.retainGeneratingNonTerminals(request);
     }
 
     @PostMapping("/retain-reachable-nt")
-    public CFGResponse retainReachableNonTerminals(@RequestBody @Valid CFGRequest request) {
+    public GrammarResponse retainReachableNonTerminals(@RequestBody @Valid GrammarRequest request) {
 
         return processorService.retainReachableNonTerminals(request);
+    }
+
+    @PostMapping("/parse")
+    public ParsingResponse parseText(@RequestBody @Valid ParsingRequest request) {
+
+        return processorService.parseInput(request);
     }
 
 }

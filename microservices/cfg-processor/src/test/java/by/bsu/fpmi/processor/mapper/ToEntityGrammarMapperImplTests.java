@@ -16,11 +16,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
 
-class ToEntityCfgMapperImplTests {
+class ToEntityGrammarMapperImplTests {
 
-    private final ToEntityCfgMapperImpl cfgParser = new ToEntityCfgMapperImpl();
+    private final ToEntityGrammarMapperImpl cfgParser = new ToEntityGrammarMapperImpl();
 
-    private final Method[] declaredMethods = ReflectionUtils.getDeclaredMethods(ToEntityCfgMapperImpl.class);
+    private final Method[] declaredMethods = ReflectionUtils.getDeclaredMethods(ToEntityGrammarMapperImpl.class);
     private final Method parseStringOfTerminalsAndNonTerminals = Arrays.stream(declaredMethods)
             .filter(m -> m.getName().equals("parseStringOfTerminalsAndNonTerminals"))
             .findFirst()

@@ -10,7 +10,7 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CFG {
+public class Grammar {
     private Map<Symbol, Set<Word>> definingEquations;
     private LinkedHashSet<Symbol> nonTerminals;
     private LinkedHashSet<Symbol> terminals;

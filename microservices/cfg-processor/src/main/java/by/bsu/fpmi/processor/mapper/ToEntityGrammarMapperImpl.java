@@ -1,10 +1,11 @@
 package by.bsu.fpmi.processor.mapper;
 
-import by.bsu.fpmi.processor.dto.CFGRequest;
+import by.bsu.fpmi.processor.dto.GrammarRequest;
 import by.bsu.fpmi.processor.exception.MalformedGrammarException;
-import by.bsu.fpmi.processor.model.CFG;
+import by.bsu.fpmi.processor.model.Grammar;
 import by.bsu.fpmi.processor.model.Symbol;
 import by.bsu.fpmi.processor.model.Word;
+import by.bsu.fpmi.processor.service.LexicalAnalyzerService;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
@@ -22,10 +23,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Component
-public class ToEntityCfgMapperImpl implements ToEntityCfgMapper {
+public class ToEntityGrammarMapperImpl implements ToEntityGrammarMapper {
 
     @Override
-    public CFG toEntity(CFGRequest request) {
+    public Grammar toEntity(GrammarRequest request) {
 
         Pattern whiteSpacePattern = Pattern.compile("\\s");
 
@@ -41,7 +42,7 @@ public class ToEntityCfgMapperImpl implements ToEntityCfgMapper {
 
         Map<Symbol, Set<Word>> definingEquations = mapDefiningEquations(request.definingEquations(), nonTerminals, terminals);
 
-        return CFG.builder()
+        return Grammar.builder()
                 .terminals(terminals)
                 .nonTerminals(nonTerminals)
                 .definingEquations(definingEquations)
@@ -126,59 +127,22 @@ public class ToEntityCfgMapperImpl implements ToEntityCfgMapper {
                         " для него не может быть задано определяющее уравнение");
             }
 
-            Collection<Word> transformationOptions = Arrays.stream(equationSplitByEquals[1].split("\\|"))
+            Collection<Word> productionBodies = Arrays.stream(equationSplitByEquals[1].split("\\|"))
                     .map(String::strip)
+                    .map(s -> {
+                        Word productionBody = new Word();
 
-                    .map(s -> parseStringOfTerminalsAndNonTerminals(
-                            reqTerminals,
-                            reqNonTerminals,
-                            nonTerminal,
-                            s)
-                    ).collect(Collectors.toCollection(HashSet::new));
+                        List<Symbol> tokenizedText = LexicalAnalyzerService.tokenizeText(s, reqNonTerminals, reqTerminals);
+                        tokenizedText.forEach(productionBody::append);
 
-            definingEquations.get(new Symbol(nonTerminal)).addAll(transformationOptions);
+                        return productionBody;
+                    })
+                    .collect(Collectors.toCollection(HashSet::new));
+
+            definingEquations.get(new Symbol(nonTerminal)).addAll(productionBodies);
         });
 
         return definingEquations;
     }
 
-    private static Word parseStringOfTerminalsAndNonTerminals(
-            Set<Symbol> symbolTerminals,
-            Set<Symbol> symbolNonTerminals,
-            String nonTerminalHavingStringAsDerivationOption,
-            String stringToParse
-    ) {
-        Set<String> terminals = symbolTerminals.stream()
-                .map(Objects::toString)
-                .collect(Collectors.toSet());
-
-        Set<String> nonTerminals = symbolNonTerminals.stream()
-                .map(Object::toString)
-                .collect(Collectors.toSet());
-
-        Word word = new Word();
-
-        int length = stringToParse.length();
-
-        int intervalLength = 1;
-        for (int i = 0; i < length && (length - intervalLength - i >= 0); ) {
-            String subStr = stringToParse.substring(i, i + intervalLength);
-
-            if (!terminals.contains(subStr) && !nonTerminals.contains(subStr)) {
-                intervalLength++;
-            } else {
-                word.append(new Symbol(subStr));
-                i += intervalLength;
-                intervalLength = 1;
-            }
-        }
-
-        if (intervalLength != 1) {
-            throw new MalformedGrammarException("некорректная опция '" + stringToParse
-                    + "' в определяющем уравнении нетерминала '"
-                    + nonTerminalHavingStringAsDerivationOption + "'");
-        }
-
-        return word;
-    }
 }

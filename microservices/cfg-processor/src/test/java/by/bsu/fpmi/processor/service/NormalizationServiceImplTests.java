@@ -1,6 +1,6 @@
 package by.bsu.fpmi.processor.service;
 
-import by.bsu.fpmi.processor.model.CFG;
+import by.bsu.fpmi.processor.model.Grammar;
 import by.bsu.fpmi.processor.model.Symbol;
 import by.bsu.fpmi.processor.model.Word;
 import org.assertj.core.api.Assertions;
@@ -11,8 +11,6 @@ import java.util.Map;
 import java.util.Set;
 
 class NormalizationServiceImplTests {
-
-    private final NormalizationServiceImpl normalizationService = new NormalizationServiceImpl();
 
     @Test
     void shouldRetainGeneratingNonTerminals() {
@@ -26,7 +24,7 @@ class NormalizationServiceImplTests {
         Symbol W = new Symbol("W");
         Symbol E = new Symbol("E");
 
-        CFG actual = CFG.builder()
+        Grammar actual = Grammar.builder()
                 .terminals(new LinkedHashSet<>(Set.of(z, x, c)))
                 .nonTerminals(new LinkedHashSet<>(Set.of(Q, W, E)))
                 .definingEquations(Map.of(
@@ -36,7 +34,7 @@ class NormalizationServiceImplTests {
                 ))
                 .build();
 
-        CFG expected = CFG.builder()
+        Grammar expected = Grammar.builder()
                 .terminals(new LinkedHashSet<>(Set.of(z, x, c)))
                 .nonTerminals(new LinkedHashSet<>(Set.of(Q, W)))
                 .definingEquations(Map.of(
@@ -46,7 +44,7 @@ class NormalizationServiceImplTests {
                 .build();
 
         // when
-        normalizationService.retainGeneratingNonTerminals(actual);
+        NormalizationService.retainGeneratingNonTerminals(actual);
 
         // then
         Assertions.assertThat(actual).isEqualTo(expected);
@@ -64,7 +62,7 @@ class NormalizationServiceImplTests {
         Symbol W = new Symbol("W");
         Symbol E = new Symbol("E");
 
-        CFG actual = CFG.builder()
+        Grammar actual = Grammar.builder()
                 .startSymbol(Q)
                 .terminals(new LinkedHashSet<>(Set.of(z, x, c)))
                 .nonTerminals(new LinkedHashSet<>(Set.of(Q, W, E)))
@@ -75,7 +73,7 @@ class NormalizationServiceImplTests {
                 ))
                 .build();
 
-        CFG expected = CFG.builder()
+        Grammar expected = Grammar.builder()
                 .startSymbol(Q)
                 .terminals(new LinkedHashSet<>(Set.of(z, x, c)))
                 .nonTerminals(new LinkedHashSet<>(Set.of(Q, W)))
@@ -86,7 +84,7 @@ class NormalizationServiceImplTests {
                 .build();
 
         // when
-        normalizationService.retainReachableNonTerminals(actual);
+        NormalizationService.retainReachableNonTerminals(actual);
 
         // then
         Assertions.assertThat(actual).isEqualTo(expected);

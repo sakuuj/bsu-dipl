@@ -89,13 +89,13 @@ func extractLoginResponse(response *http.Response, logger echo.Logger) (dto.Logi
 	return loginResponse, nil
 }
 
-func createLoginHttpRequest(ctx context.Context, loginRequest dto.LoginRequest, oAuth2Cofing config.OAuth2) *http.Request {
+func createLoginHttpRequest(ctx context.Context, loginRequest dto.LoginRequest, oAuth2Config config.OAuth2) *http.Request {
 
 	requestBody := url.Values{}
-	requestBody.Add("client_id", oAuth2Cofing.ClientId)
-	requestBody.Add("client_secret", oAuth2Cofing.ClientSecret)
-	requestBody.Add("grant_type", oAuth2Cofing.GrantType)
-	requestBody.Add("scope", oAuth2Cofing.Scope)
+	requestBody.Add("client_id", oAuth2Config.ClientId)
+	requestBody.Add("client_secret", oAuth2Config.ClientSecret)
+	requestBody.Add("grant_type", oAuth2Config.GrantType)
+	requestBody.Add("scope", oAuth2Config.Scope)
 	requestBody.Add("username", loginRequest.Username)
 	requestBody.Add("password", loginRequest.Password)
 
@@ -104,7 +104,7 @@ func createLoginHttpRequest(ctx context.Context, loginRequest dto.LoginRequest, 
 		return http.NewRequestWithContext(
 			ctx,
 			http.MethodPost,
-			oAuth2Cofing.TokenEndpointUrl,
+			oAuth2Config.TokenEndpointUrl,
 			strings.NewReader(requestBody.Encode()),
 		)
 	})

@@ -9,11 +9,14 @@ import java.util.List;
 @EqualsAndHashCode
 public class Word implements Iterable<Symbol> {
 
+    public static final Word EMPTY_WORD = new Word().append(Symbol.EMPTY_SYMBOL);
+
     private List<Symbol> content;
 
     public Word(Word word) {
         content = new ArrayList<>(word.content);
     }
+
     public Word() {
         content = new ArrayList<>(List.of(Symbol.EMPTY_SYMBOL));
     }
@@ -51,7 +54,9 @@ public class Word implements Iterable<Symbol> {
 
         content.forEach(s -> {
             sb.append(s.toString());
+            sb.append(" ");
         });
+        sb.deleteCharAt(sb.length() - 1);
 
         return sb.toString();
     }

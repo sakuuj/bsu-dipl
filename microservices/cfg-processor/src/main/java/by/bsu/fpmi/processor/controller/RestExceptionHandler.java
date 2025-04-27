@@ -1,5 +1,10 @@
-package by.bsu.fpmi.processor.exception;
+package by.bsu.fpmi.processor.controller;
 
+import by.bsu.fpmi.processor.exception.ApiError;
+import by.bsu.fpmi.processor.exception.MalformedGrammarException;
+import by.bsu.fpmi.processor.exception.MultipleProductionsExistException;
+import by.bsu.fpmi.processor.exception.NotLL1GrammarException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -8,11 +13,14 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import java.time.Instant;
 import java.util.List;
 
+@Slf4j
 @ControllerAdvice
 public class RestExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleException(Exception exception) {
+
+        log.error("Error", exception);
 
         ApiError apiError = ApiError.builder()
                 .timestamp(Instant.now())
@@ -23,8 +31,12 @@ public class RestExceptionHandler {
                 .body(apiError);
     }
 
-    @ExceptionHandler(MalformedGrammarException.class)
-    public ResponseEntity<ApiError> handleMalformedGrammarException(MalformedGrammarException exception) {
+    @ExceptionHandler({
+            NotLL1GrammarException.class,
+            MalformedGrammarException.class,
+            MultipleProductionsExistException.class
+    })
+    public ResponseEntity<ApiError> handleMalformedGrammarException(Exception exception) {
 
         ApiError apiError = ApiError.builder()
                 .timestamp(Instant.now())

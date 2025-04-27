@@ -6,7 +6,7 @@ import lombok.Builder;
 import java.util.List;
 
 @Builder
-public record CFGRequest(
+public record GrammarRequest(
         @NotEmpty(message = "множество нетерминалов не может быть пустым")
         List<String> nonTerminals,
 
