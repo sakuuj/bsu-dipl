@@ -9,11 +9,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.net.URI;
 
 @RestController
 @RequiredArgsConstructor
@@ -48,7 +47,9 @@ public class ExamplesController {
 
         String id = examplesService.insertExample(grammarRequest);
 
-        return ResponseEntity.created(URI.create("/" + id)).build();
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .header(HttpHeaders.LOCATION, "/" + id)
+                .build();
     }
 
     @DeleteMapping("/{id}")

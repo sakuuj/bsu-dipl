@@ -5,7 +5,7 @@ import Cookies from "js-cookie";
 import ChooseGrammarPopup from "./ChooseGrammarPopup";
 
 const JWT_TOKEN_KEY = "jwtToken";
-const PROCESSOR_HOST = "http://localhost:8081"
+const PROCESSOR_HOST = "http://localhost:80"
 const EXAMPLES_HOST = "http://localhost:80"
 
 export default function ActionButtons({
@@ -18,7 +18,6 @@ export default function ActionButtons({
 
     let [isPopupActivated, activatePopup] = useState(false);
 
-    console.log(role);
     return (
         <div className=" relative z-10 basis-15 self-center flex justify-center items-center flex-col gap-2">
             {(() => {
@@ -59,7 +58,7 @@ export default function ActionButtons({
                             className="bg-_smoke p-2 w-4/5 hover:text-_grayer-white hover:bg-_dark-blue"
                             type="button"
                             id="findFirst_2"
-                            onClick={() => insertGrammarAndPublishResult(onResultAcquired, grammar)}
+                            onClick={() => insertGrammarAndPublishResult(onResultAcquired, grammar, inputForAnalysis)}
                         >Добавить грамматику</button>
                     </>)
             }
@@ -76,11 +75,7 @@ function parseInput(onResultAcquired, inputForAnalysis, grammar) {
     xhr.onload = function () {
         if (xhr.status !== 200) {
             const errorResponse = xhr.response;
-            if (errorResponse !== null) {
-                onResultAcquired("ОШИБКА:\n" + errorResponse.message);
-            } else {
-                onResultAcquired("ОШИБКА");
-            }
+            processErrorResponse(errorResponse, onResultAcquired);
             return;
         }
         const response = xhr.response;
@@ -96,8 +91,8 @@ function parseInput(onResultAcquired, inputForAnalysis, grammar) {
             : `ввод "${inputForAnalysis}" не может быть получен из грамматики`;
 
         let parsingSteps = parsingMetadata.parsingSteps
-            .map((step, i) => `\nШаг ${i}.`+"\n\tДействие: " + "\n\t\t" +(step.actionDescription || "_") + "\n\tСодержимое стека: " + "\n\t\t" + step.stackContent + "\n\tОставшийся текст: " + "\n\t\t" + step.unmatchedInput)
-            .reduce((accumulator, currentValue) => accumulator  + currentValue);
+            .map((step, i) => `\nШаг ${i}.` + "\n\tДействие: " + "\n\t\t" + (step.actionDescription || "_") + "\n\tСодержимое стека: " + "\n\t\t" + step.stackContent + "\n\tОставшийся текст: " + "\n\t\t" + step.unmatchedInput)
+            .reduce((accumulator, currentValue) => accumulator + currentValue);
 
         let rez = "Результат анализа: \t" + parsingResult
             + ".\n\nПоследовательность вывода: " + parsingSteps;
@@ -119,6 +114,17 @@ function parseInput(onResultAcquired, inputForAnalysis, grammar) {
     xhr.send(JSON.stringify(request));
 }
 
+function processErrorResponse(errorResponse, onResultAcquired) {
+    if (errorResponse !== null) {
+        onResultAcquired("ОШИБКА:\n\t"
+            + errorResponse.message
+            + (errorResponse.errors !== undefined ? "\n\t" + errorResponse.errors : "")
+        );
+    } else {
+        onResultAcquired("ОШИБКА");
+    }
+}
+
 function findFirst1AndPublishResult(onResultAcquired, grammarState) {
     let xhr = new XMLHttpRequest();
 
@@ -128,11 +134,7 @@ function findFirst1AndPublishResult(onResultAcquired, grammarState) {
     xhr.onload = function () {
         if (xhr.status !== 200) {
             const errorResponse = xhr.response;
-            if (errorResponse !== null) {
-                onResultAcquired("ОШИБКА:\n" + errorResponse.message);
-            } else {
-                onResultAcquired("ОШИБКА");
-            }
+            processErrorResponse(errorResponse, onResultAcquired);
             return;
         }
         const response = xhr.response;
@@ -167,11 +169,9 @@ function findFollowAndPublishResult(onResultAcquired, grammarState) {
     xhr.onload = function () {
         if (xhr.status !== 200) {
             const errorResponse = xhr.response;
-            if (errorResponse !== null) {
-                onResultAcquired("ОШИБКА:\n" + errorResponse.message);
-            } else {
-                onResultAcquired("ОШИБКА");
-            }
+  
+            processErrorResponse(errorResponse, onResultAcquired);
+
             return;
         }
         const response = xhr.response;
@@ -227,7 +227,7 @@ function parseGrammar(grammarState) {
 }
 
 
-function insertGrammarAndPublishResult(onResultAcquired, grammarState) {
+function insertGrammarAndPublishResult(onResultAcquired, grammarState, inputForAnalysis) {
     let xhr = new XMLHttpRequest();
 
     xhr.open('POST', `${EXAMPLES_HOST}/examples`);
@@ -237,16 +237,14 @@ function insertGrammarAndPublishResult(onResultAcquired, grammarState) {
     xhr.onload = function () {
         if (xhr.status !== 201) {
             const errorResponse = xhr.response;
-            if (errorResponse !== null) {
-                onResultAcquired("ОШИБКА:\n" + errorResponse.message);
-            } else {
-                onResultAcquired("ОШИБКА");
-            }
+  
+            processErrorResponse(errorResponse, onResultAcquired);
+
             return;
         }
         const response = xhr.response;
 
-        onResultAcquired("Грамматика добавлена");
+        onResultAcquired(`Грамматика была добавлена: ID = ${inputForAnalysis}`);
     };
     xhr.onerror = function () {
 
@@ -254,6 +252,7 @@ function insertGrammarAndPublishResult(onResultAcquired, grammarState) {
     }
 
     let grammar = parseGrammar(grammarState);
+    grammar.id = inputForAnalysis;
     console.log(JSON.stringify(grammar));
     xhr.send(JSON.stringify(grammar));
 }

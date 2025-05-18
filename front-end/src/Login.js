@@ -34,7 +34,7 @@ export default function LoginForm() {
           </>) : null
         }
         <div className="flex justify-center items-center">
-          <div onClick={() => {
+          <button type="button" onClick={() => {
             const xhr = new XMLHttpRequest();
             xhr.open("POST", `${AUTH_SERVER_HOST}/auth/login`);
             xhr.setRequestHeader('Content-type', 'application/json');
@@ -66,7 +66,7 @@ export default function LoginForm() {
             className="text-center py-2 px-14 hover:bg-_dark-blue hover:text-_grayer-white border hover:border-_grayer-white bg-white text-_dark-blue hover:cursor-pointer "
           >
             Войти
-          </div>
+          </button>
         </div>
       </div>
     </div>

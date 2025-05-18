@@ -6,7 +6,7 @@ const EXAMPLES_HOST = "http://localhost";
 const JWT_TOKEN_KEY = "jwtToken";
 
 const DEFAULT_PAGE_SIZE = 3;
-const FIRST_PAGE_NUMBER = 1;
+const FIRST_PAGE_NUMBER = 0;
 
 function nonTerminalsToString(nonTerminals, startSymbol) {
     const startSymbolIndex = nonTerminals.indexOf(startSymbol);
@@ -41,6 +41,13 @@ function definingEquationsToString(definingEquations) {
         .slice(1)
 }
 
+function chosenDefiningEquationsToString(definingEquations) {
+     return definingEquations
+        .map(item => String(item))
+        .reduce((accumulator, current) => accumulator + '\n' + current, "")
+        .slice(1)
+}
+
 function GrammarOption({ option, onGrammarChoosed }) {
 
     let id = option.id;
@@ -50,12 +57,14 @@ function GrammarOption({ option, onGrammarChoosed }) {
     let definingEquations = definingEquationsToString(option.definingEquations);
     let [enabled, setEnabled] = useState(true);
 
+    console.log(definingEquations);
+
     return enabled ? (
         <div className="relative text-center mb-10 bg-white block order-0 p-3 mt-3">
             <div className="border border-_smoke">
 
                 <p>
-                    {`#` + id}
+                    {`ID: ${id}`}
                 </p>
             </div>
             <div className="border border-_smoke">
@@ -98,21 +107,25 @@ function GrammarOption({ option, onGrammarChoosed }) {
                     <button type="button" onClick={() => onGrammarChoosed({
                         nonTerminals: nonTerminals,
                         terminals: terminals,
-                        definingEquations: definingEquations
+                        definingEquations: chosenDefiningEquationsToString(option.definingEquations)
                     })} >
                         Выбрать
                     </button>
                 </p>
-                {localStorage.getItem(JWT_TOKEN_KEY) !== null ?
-                    (<p className=" p-2 hover:bg-_dark-blue hover:text-white hover:border-_smoke">
-                        <button type="button" onClick={() => {
-                            deleteGrammar(id, setEnabled)
-                        }} >
-                            Удалить
-                        </button>
-                    </p>) : null}
-
             </div>
+            {localStorage.getItem(JWT_TOKEN_KEY) !== null ?
+                (
+                    <div className="border border-_smoke">
+                        <p className=" p-2 hover:bg-_dark-blue hover:text-white hover:border-_smoke">
+                            <button type="button" onClick={() => {
+                                deleteGrammar(id, setEnabled)
+                            }} >
+                                Удалить
+                            </button>
+                        </p>
+                    </div>
+                ) : null}
+
         </div>
     ) : null;
 }
@@ -187,7 +200,7 @@ export default function ChooseGrammarPopup({ onGrammarChoosed, activatePopup }) 
                     <div className=" hover:bg-_dark-blue hover:text-white hover:border-_smoke border size-10 border-gray-400 flex justify-center items-center">
                         <button type="button" className="w-full h-full flex justify-center items-center" id="prev-page-button"
                             onClick={() => {
-                                if (currentPageNumber === 1) {
+                                if (currentPageNumber === FIRST_PAGE_NUMBER) {
                                     return;
                                 }
 
@@ -223,7 +236,16 @@ export default function ChooseGrammarPopup({ onGrammarChoosed, activatePopup }) 
                             </span>
                         </button>
                     </div>
+                    <div className=" hover:bg-_dark-blue hover:text-white hover:border-_smoke border size-10 border-gray-400 flex justify-center items-center">
+                        <button type="button" className="w-full h-full" id="next-page-button" onClick={() => {
 
+                            fetchGrammarsAndPublishResponse(setResponse, grammarReq, setGrammarReq, currentPageNumber, DEFAULT_PAGE_SIZE);
+                        }}>
+                            <span>
+                                &#x1F5D8;
+                            </span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

@@ -45,7 +45,7 @@ public class NormalizationService {
 
                     for (Symbol symbol : option) {
 
-                        if (!generatingNonTerminals.contains(symbol) && !terminals.contains(symbol)) {
+                        if (!generatingNonTerminals.contains(symbol) && !terminals.contains(symbol) && symbol != Symbol.EMPTY_SYMBOL) {
                             allSymbolsAreGenerating = false;
                             break;
                         }
@@ -69,7 +69,7 @@ public class NormalizationService {
 
                 for (Symbol symbol : word) {
 
-                    if (!generatingNonTerminals.contains(symbol) && !terminals.contains(symbol)) {
+                    if (!generatingNonTerminals.contains(symbol) && !terminals.contains(symbol) && symbol != Symbol.EMPTY_SYMBOL) {
                         optionsToRemove.add(word);
                         break;
                     }

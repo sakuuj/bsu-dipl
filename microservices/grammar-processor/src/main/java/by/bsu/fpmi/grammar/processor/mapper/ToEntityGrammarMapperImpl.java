@@ -64,12 +64,14 @@ public class ToEntityGrammarMapperImpl implements ToEntityGrammarMapper {
 
         if (mappedNonTerminals.contains(Symbol.EMPTY_SYMBOL)) {
 
-            throw new MalformedGrammarException("\"_\" - символ пустого слова, не может принадлежать множеству терминалов");
+            throw new MalformedGrammarException("\"%s\" - символ пустого слова, не может принадлежать множеству терминалов"
+                    .formatted(Symbol.EMPTY_SYMBOL.toString()));
         }
 
         if (mappedNonTerminals.contains(Symbol.RESERVED_SYMBOL)) {
 
-            throw new MalformedGrammarException("\"__$\" - зарезервированный символ");
+            throw new MalformedGrammarException("\"%s\" - зарезервированный символ"
+                    .formatted(Symbol.RESERVED_SYMBOL.toString()));
         }
 
         return mappedNonTerminals;
@@ -142,8 +144,13 @@ public class ToEntityGrammarMapperImpl implements ToEntityGrammarMapper {
                         " для него не может быть задано определяющее уравнение");
             }
 
-            Collection<Word> productionBodies = Arrays.stream(equationSplitByEquals[1].split("\\|"))
+            Collection<Word> productionBodies = Arrays.stream(equationSplitByEquals[1].split("\\|", -1))
                     .map(String::strip)
+                    .peek(s -> {
+                        if (s.isEmpty()) {
+                            throw new MalformedGrammarException("для обозначения пустого слова в качестве правила следует указать символ \"_\"");
+                        }
+                    })
                     .map(s -> {
                         Word productionBody = new Word();
 

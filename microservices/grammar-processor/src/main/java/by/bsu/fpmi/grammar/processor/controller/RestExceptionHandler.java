@@ -57,7 +57,7 @@ public class RestExceptionHandler {
                 .toList();
 
         ApiError apiError = ApiError.builder()
-                .message("Validation failed")
+                .message("ошибка валидации")
                 .errors(errors)
                 .timestamp(Instant.now())
                 .build();

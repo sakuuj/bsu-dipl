@@ -24,6 +24,11 @@ public class LexicalAnalyzerService {
         ArrayList<Symbol> result = Arrays.stream(splitText)
                 .map(Symbol::new)
                 .peek(symbol -> {
+                    
+                    if (symbol.equals(Symbol.EMPTY_SYMBOL)) {
+                        return;
+                    }
+
                     if (!terminals.contains(symbol) && !nonTerminals.contains(symbol)) {
                         throw new MalformedGrammarException("Указанный символ '%s' не найден в списке символов грамматики".formatted(symbol));
                     }

@@ -21,16 +21,19 @@ public class ExamplesApplication {
     public CommandLineRunner commandLineRunner(GrammarRepository grammarRepository) {
 
         return (args) -> {
-            Grammar grammar = new Grammar(
-                    "fpm-1-1",
-                    List.of("S"),
-                    List.of("s"),
-                    List.of("S=s|_"),
-                    "S"
-            );
-            grammarRepository.insert(grammar);
-            Page<Grammar> all = grammarRepository.findAll(Pageable.ofSize(10));
-            System.out.println(all.getContent());
+
+            Thread.ofPlatform().start(() -> {
+                Grammar grammar = new Grammar(
+                        "fpm-1-1",
+                        List.of("S"),
+                        List.of("s"),
+                        List.of("S=s|_"),
+                        "S"
+                );
+                grammarRepository.insert(grammar);
+                Page<Grammar> all = grammarRepository.findAll(Pageable.ofSize(10));
+                System.out.println(all.getContent());
+            });
         };
     }
 }

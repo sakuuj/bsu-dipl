@@ -13,7 +13,6 @@ export default function Main({ role }) {
         definingEquations: ''
     });
 
-    console.log("main " + role)
     let [result, setResult] = useState('');
 
     let [inputForAnalysis, setInputForAnalysis] = useState('');

@@ -57,9 +57,7 @@ export default function Grammar({
                     className="border-solid border px-2 border-_dark-blue w-4/5 resize-none"
                     id="defining-equations"
                     name="defining-equations"
-                    value={
-                        grammar.definingEquations
-                    }
+                    value={grammar.definingEquations}
                     onChange={(e) => {
                         onGrammarChanged({
                             ...grammar,
@@ -71,7 +69,7 @@ export default function Grammar({
             </p>
 
             <p className="basis-5 text-center mt-2">
-                <p className="text-xl  text-center">Ввод для анализа:</p>
+                <p className="text-xl  text-center">Ввод:</p>
             </p>
             <p className="basis-15 grow text-center flex flex-row justify-center items-stretch">
                 <textarea

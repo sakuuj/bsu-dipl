@@ -21,7 +21,6 @@ function App() {
   let jwtToken = localStorage.getItem("jwtToken");
 
   if (jwtToken !== null && isExpired("" + jwtToken)) {
-    console.log("hello");
     return (<Navigate to={"/login"}></Navigate>)
   } else if (jwtToken !== null) {
     role = "ADMIN"

@@ -2,6 +2,7 @@ package by.bsu.fpmi.grammar.examples.controller;
 
 import by.bsu.fpmi.grammar.examples.dto.ApiError;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
@@ -44,6 +45,18 @@ public class RestExceptionHandler {
                 .body(apiError);
     }
 
+    @ExceptionHandler(DuplicateKeyException.class)
+    public ResponseEntity<ApiError> handleDuplicateKeyException(DuplicateKeyException ex) {
+
+        var apiError = ApiError.builder()
+                .message("грамматика с указанным ID уже существует")
+                .timestamp(Instant.now())
+                .build();
+
+        return ResponseEntity.badRequest()
+                .body(apiError);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ApiError> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
 
@@ -54,7 +67,7 @@ public class RestExceptionHandler {
                 .toList();
 
         ApiError apiError = ApiError.builder()
-                .message("Validation failed")
+                .message("ошибка валидации")
                 .errors(errors)
                 .timestamp(Instant.now())
                 .build();
